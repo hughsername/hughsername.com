@@ -1,0 +1,83 @@
+/* Card.module.css */
+.card {
+  container-type: inline-size;
+  container-name: card;
+}
+
+.container {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.eyebrow {
+  /* Fallback for browsers without container query unit support */
+  font-size: var(--fluid-sm); /* Uses our new fluid scale (14px -> 25px) */
+  /* Modern browsers will use this */
+  font-size: clamp(0.875rem, 2.5cqi + 0.75rem, 1.5625rem);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-eyebrow);
+}
+
+.title {
+  /* Fallback for browsers without container query unit support */
+  font-size: var(--fluid-md); /* Uses our new fluid scale (19px -> 33px) */
+  /* Modern browsers will use this */
+  font-size: clamp(1.1875rem, 3cqi + 1rem, 2.0625rem);
+  line-height: var(--line-height-tight);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-semibold);
+}
+
+.content {
+  /* Fallback */
+  font-size: var(--fluid-base); /* Uses our new fluid scale (15px -> 21px) */
+  /* Modern approach */
+  font-size: clamp(0.9375rem, 2cqi + 0.5rem, 1.3125rem);
+  line-height: var(--line-height-normal);
+  font-family: var(--font-body);
+}
+
+.image {
+  display: grid;
+  place-items: center;
+}
+
+/* Container query styles - adjusted breakpoints for new scale */
+@container card (min-width: 375px) {
+  .container {
+    gap: var(--space-5);
+  }
+}
+
+@container card (min-width: 600px) {
+  .container {
+    grid-template-columns: 2fr 3fr;
+    gap: var(--space-6);
+  }
+  
+  .title {
+    font-size: clamp(1.5rem, 3.5cqi + 1rem, 2.5rem);
+  }
+}
+
+@container card (min-width: 800px) {
+  .eyebrow {
+    font-size: clamp(1rem, 3cqi + 0.75rem, 1.75rem);
+  }
+
+  .title {
+    font-size: clamp(1.75rem, 4cqi + 1rem, 2.75rem);
+  }
+  
+  .content {
+    font-size: clamp(1rem, 2.5cqi + 0.5rem, 1.5rem);
+  }
+}
+
+/* Development helper: adds original classname to inspector */
+:global([data-debug]) {
+  --component: card;
+}
