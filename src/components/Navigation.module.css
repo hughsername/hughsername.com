@@ -1,0 +1,34 @@
+.nav {
+  width: 76px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.hamburger {
+  margin-bottom: 32px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.icons {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.icons button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+}

@@ -65,6 +65,7 @@
   --text-body: hsl(0 0% 25%);
   --text-muted: hsl(0 0% 45%);
   --text-eyebrow: hsl(0 0% 35%);
+  --text-color: #222;
   
   /* Colors */
   --color-primary: #4a90e2;
@@ -104,7 +105,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-  font-size: var(--fluid-lg);
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em; /* Subtle letter spacing adjustment */
 }
 
 h2 {
@@ -161,11 +165,19 @@ figure > * + * {
 }
 
 /* Mobile First Base Styles */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 body {
-  font-family: var(--font-body);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: var(--font-size-base);
   line-height: var(--line-height-base);
-  color: var(--color-text);
+  color: var(--text-color);
+  font-weight: 400;
+  font-synthesis: none;
   background: #FAFAFA;
 }
 

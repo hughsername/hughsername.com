@@ -6,9 +6,18 @@ import styles from './GraphPaper.module.css';
 let THREE: typeof import('three');
 
 // GLSL Shader
+const vertexShader = `
+  void main() {
+    gl_Position = vec4(position, 1.0);
+  }
+`;
+
+// Simple fragment shader to test basic hover effect
 const fragmentShader = `
   uniform vec2 u_resolution;
   uniform vec2 u_mouse;
+  uniform vec2 u_prevMouse[16];
+  uniform float u_prevStrengths[16];
   uniform float u_time;
   uniform float u_gridSize;
   uniform float u_lineWidth;
@@ -43,76 +52,108 @@ const fragmentShader = `
     return 130.0 * dot(m, g);
   }
 
+  float getHoverStrength(vec2 st, vec2 mousePos) {
+    vec2 mouseSpace = (st - mousePos);
+    
+    float xDist = mouseSpace.x / u_gridSize;
+    float yDist = mouseSpace.y / u_gridSize;
+    
+    // Faster wave distortion
+    float xWave = sin(xDist * 4.0 + u_time * 4.0) * 0.15;
+    float yWave = cos(yDist * 4.0 + u_time * 3.4) * 0.15;
+    
+    // Faster blob animation
+    float angle = atan(mouseSpace.y, mouseSpace.x);
+    float blobFactor = sin(angle * 3.0 + u_time * 2.0) * 0.2 + 
+                      cos(angle * 2.0 - u_time * 1.4) * 0.15;
+    
+    float dist = length(vec2(
+      xDist * (1.0 + xWave + blobFactor),
+      yDist * (1.0 + yWave + blobFactor)
+    ));
+    
+    float radius = 7.2;
+    return 1.0 - smoothstep(0.0, radius, dist);
+  }
+
+  float getTrailStrength(vec2 st, vec2 mousePos, float baseStrength) {
+    vec2 mouseSpace = (st - mousePos);
+    
+    float xDist = mouseSpace.x / u_gridSize;
+    float yDist = mouseSpace.y / u_gridSize;
+    
+    // Faster trail waves
+    float xWave = sin(xDist * 3.0 + u_time * 3.0) * 0.12;
+    float yWave = cos(yDist * 3.0 + u_time * 2.6) * 0.12;
+    
+    float angle = atan(mouseSpace.y, mouseSpace.x);
+    float blobFactor = sin(angle * 2.0 + u_time * 1.6) * 0.15 + 
+                      cos(angle * 3.0 - u_time * 1.2) * 0.1;
+    
+    float dist = length(vec2(
+      xDist * (1.0 + xWave + blobFactor),
+      yDist * (1.0 + yWave + blobFactor)
+    ));
+    
+    float radius = 4.8;
+    float strength = 1.0 - smoothstep(0.0, radius, dist);
+    return strength * baseStrength;
+  }
+
   void main() {
     vec2 st = gl_FragCoord.xy;
     vec2 grid = fract(st / u_gridSize);
-    float baseLineWidth = u_lineWidth;
     
-    vec3 gridColor = vec3(0.953);
-    vec3 baseBlue = vec3(0.6, 0.75, 1.0);
-    vec3 lightBlue = vec3(0.6, 0.722, 1.0);
+    vec3 gridColor = vec3(0.92);
+    // Royal blue variations - all brighter and more saturated
+    vec3 baseBlue = vec3(0.45, 0.55, 1.0);      // More saturated royal blue
+    vec3 lightBlue = vec3(0.5, 0.65, 1.0);      // Lighter royal blue
+    vec3 trailColor = vec3(0.55, 0.7, 1.0);     // Even lighter royal blue
+    vec3 brightBlue = vec3(0.6, 0.8, 1.0);      // Brightest royal blue for pulsing
     
     vec3 color = gridColor;
     float alpha = 0.0;
 
-    // Calculate mouse position in screen coordinates
-    vec2 mouse = u_mouse * u_resolution;
-    // Adjust mouse.y to match document coordinates
-    mouse.y = u_resolution.y * u_mouse.y;
-    
-    vec2 mouseSpace = (st - mouse);
-    float dist = length(mouseSpace / u_gridSize);
-    
-    float noiseTime = u_time * 0.5;
-    vec2 noiseCoord = mouseSpace * 0.3 / u_gridSize;
-    float noise1 = snoise(noiseCoord + noiseTime);
-    float noise2 = snoise(noiseCoord * 2.0 - noiseTime * 0.7);
-    float noise3 = snoise(noiseCoord * 0.5 + noiseTime * 0.3);
-    
-    float noise = noise1 * 0.5 + noise2 * 0.3 + noise3 * 0.2;
-    
-    // Set base radius to 12.0
-    float baseRadius = 12.0;
-    float noiseRadius = baseRadius + noise * 3.5;
-    float hoverStrength = 1.0 - smoothstep(0.0, noiseRadius, dist);
-    
-    // Add horizontal pulse with 3s cycle (time * 2.0 * PI / 3.0)
-    float horizontalPulse = sin(u_time * 2.094395 + mouseSpace.x * 0.1);
-    float pulseStrength = 0.3; // Adjust this to control pulse intensity
-    
-    float pulse = sin(u_time * 0.7 + noise * 2.0) * 0.1;
-    hoverStrength *= 1.0 + pulse;
-    
-    float flowSpeed = 1.5;
-    float horizontalOffset = mouseSpace.x / u_gridSize;
-    float flowNoise = snoise(vec2(horizontalOffset * 2.0, u_time));
-    float flow = sin(u_time * flowSpeed - horizontalOffset * 0.125 + flowNoise * 0.5 + horizontalPulse * pulseStrength) * 0.5 + 0.5;
-    flow = pow(flow, 2.0);
-    
-    float bulgeAmount = 0.3 * hoverStrength * (1.0 + noise * 0.4);
-    float lineWidth = baseLineWidth * (1.0 + bulgeAmount);
-    
-    bool isVerticalLine = grid.x < lineWidth || grid.x > (1.0 - lineWidth);
-    bool isHorizontalLine = grid.y < lineWidth || grid.y > (1.0 - lineWidth);
+    bool isVerticalLine = grid.x < u_lineWidth || grid.x > (1.0 - u_lineWidth);
+    bool isHorizontalLine = grid.y < u_lineWidth || grid.y > (1.0 - u_lineWidth);
     
     if (isVerticalLine || isHorizontalLine) {
       alpha = 1.0;
-      if (hoverStrength > 0.0) {
-        vec3 flowColor = mix(baseBlue, lightBlue, flow);
-        float saturationBoost = 1.0 + (0.25 * hoverStrength * (1.0 + noise * 0.25));
-        flowColor *= saturationBoost;
-        color = mix(gridColor, flowColor, hoverStrength);
-        alpha = 1.0 + (0.2 * hoverStrength);
+    }
+
+    if (alpha > 0.0) {
+      float hoverStrength = getHoverStrength(st, u_mouse * u_resolution);
+      
+      float trailStrength = 0.0;
+      for (int i = 0; i < 16; i++) {
+        float strength = getTrailStrength(st, u_prevMouse[i] * u_resolution, u_prevStrengths[i]);
+        trailStrength = max(trailStrength, strength);
       }
+      
+      vec3 finalColor = gridColor;
+      if (trailStrength > 0.0) {
+        float trailPulse = sin(u_time * 4.0) * 0.15 + 1.15;
+        vec3 pulsingTrailColor = mix(trailColor, brightBlue, trailPulse - 1.0);
+        finalColor = mix(gridColor, pulsingTrailColor, trailStrength);
+      }
+      if (hoverStrength > 0.0) {
+        float hoverPulse = sin(u_time * 3.0) * 0.2 + 1.2;
+        vec3 pulsingBaseBlue = mix(baseBlue, brightBlue, hoverPulse - 1.0);
+        finalColor = mix(finalColor, pulsingBaseBlue, hoverStrength);
+      }
+      
+      if (isVerticalLine) {
+        float verticalWave = sin(st.y * 0.02 + u_time * 3.0) * 0.15;
+        finalColor *= 1.0 + verticalWave * max(hoverStrength, trailStrength);
+      } else {
+        float horizontalWave = cos(st.x * 0.02 + u_time * 3.0) * 0.15;
+        finalColor *= 1.0 + horizontalWave * max(hoverStrength, trailStrength);
+      }
+      
+      color = finalColor;
     }
     
     gl_FragColor = vec4(color, alpha);
-  }
-`;
-
-const vertexShader = `
-  void main() {
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
@@ -125,57 +166,94 @@ export default function GraphPaper() {
     u_time: { value: number };
     u_resolution: { value: Vector2 };
     u_mouse: { value: Vector2 };
+    u_prevMouse: { value: Vector2[] };
+    u_prevStrengths: { value: number[] };
     u_gridSize: { value: number };
     u_lineWidth: { value: number };
   };
   let frameId: number;
   let pixelRatio: number;
   let canvas: HTMLCanvasElement | undefined;
-
-  // Track the last known mouse position
-  let lastMouseX = 0;
-  let lastMouseY = 0;
+  let prevMouseRef: { x: number; y: number; timestamp: number }[] = [];
+  const maxTrailLength = 16;
+  const frameRate = 1000 / 60;
+  let lastUpdateTime = 0;
+  let lastMousePos = { x: 0, y: 0 };
+  const minDistanceForUpdate = 0.001;
+  const falloffDuration = 700; // 700ms for complete falloff
 
   const updateMousePosition = (clientX: number, clientY: number) => {
     if (!uniforms || !containerRef || typeof window === 'undefined') return;
 
-    // Store last known position
-    lastMouseX = clientX;
-    lastMouseY = clientY;
+    const currentTime = performance.now();
+    if (currentTime - lastUpdateTime < frameRate) {
+      return;
+    }
+    lastUpdateTime = currentTime;
 
     const rect = containerRef.getBoundingClientRect();
-    
-    // Only update when mouse is within container bounds
-    if (clientX >= rect.left && clientX <= rect.right && 
-        clientY >= rect.top && clientY <= rect.bottom) {
-      const x = (clientX - rect.left) / rect.width;
-      const y = 1.0 - (clientY - rect.top) / rect.height;
+    const x = (clientX - rect.left) / rect.width;
+    const y = 1.0 - (clientY - rect.top) / rect.height;
+
+    // Check if mouse has moved enough to record new position
+    const dx = x - lastMousePos.x;
+    const dy = y - lastMousePos.y;
+    const distanceMoved = Math.sqrt(dx * dx + dy * dy);
+
+    uniforms.u_mouse.value.set(x, y);
+
+    if (distanceMoved > minDistanceForUpdate) {
+      // Add new position to trail
+      prevMouseRef.unshift({ 
+        x: x, 
+        y: y, 
+        timestamp: currentTime
+      });
       
-      uniforms.u_mouse.value.x = x;
-      uniforms.u_mouse.value.y = y;
+      // Keep only maxTrailLength positions
+      if (prevMouseRef.length > maxTrailLength) {
+        prevMouseRef.pop();
+      }
+
+      lastMousePos = { x, y };
     }
+
+    // Update positions and calculate time-based strengths
+    const positions = Array(maxTrailLength).fill(null).map((_, i) => {
+      if (i < prevMouseRef.length) {
+        return new THREE.Vector2(prevMouseRef[i].x, prevMouseRef[i].y);
+      }
+      return new THREE.Vector2(x, y);
+    });
+
+    const strengths = Array(maxTrailLength).fill(0).map((_, i) => {
+      if (i >= prevMouseRef.length) return 0;
+      
+      const timeSincePoint = currentTime - prevMouseRef[i].timestamp;
+      const timeStrength = Math.max(0, 1 - (timeSincePoint / falloffDuration));
+      
+      // Combine with position-based falloff for smoother trail
+      const positionStrength = 1.0 - (i / maxTrailLength);
+      
+      return Math.max(0, timeStrength * positionStrength);
+    });
+
+    uniforms.u_prevMouse.value = positions;
+    uniforms.u_prevStrengths.value = strengths;
   };
 
   const handleMouseMove = (event: MouseEvent) => {
     updateMousePosition(event.clientX, event.clientY);
   };
 
-  const handleScroll = () => {
-    if (!containerRef || typeof window === 'undefined') return;
-    updateMousePosition(lastMouseX, lastMouseY);
-    handleResize();
-  };
-
   const handleResize = () => {
     if (!containerRef || !renderer || !camera || !uniforms || typeof window === 'undefined') return;
 
-    const contentHeight = Math.max(
+    const width = window.innerWidth;
+    const height = Math.max(
       document.documentElement.scrollHeight,
       document.body.scrollHeight
     );
-    
-    const width = window.innerWidth;
-    const height = contentHeight;
     
     containerRef.style.height = `${height}px`;
     renderer.setSize(width, height);
@@ -193,18 +271,30 @@ export default function GraphPaper() {
     uniforms.u_resolution.value.set(width * pixelRatio, height * pixelRatio);
   };
 
-  const animate = () => {
+  const animate = (time: number) => {
     if (typeof window === 'undefined') return;
-    frameId = requestAnimationFrame(animate);
     
-    if (uniforms) {
-      uniforms.u_time.value += 0.001;
+    // Update trail strengths every frame
+    if (uniforms && prevMouseRef.length > 0) {
+      const currentTime = performance.now();
+      const strengths = Array(maxTrailLength).fill(0).map((_, i) => {
+        if (i >= prevMouseRef.length) return 0;
+        
+        const timeSincePoint = currentTime - prevMouseRef[i].timestamp;
+        const timeStrength = Math.max(0, 1 - (timeSincePoint / falloffDuration));
+        
+        // Combine with position-based falloff for smoother trail
+        const positionStrength = 1.0 - (i / maxTrailLength);
+        
+        return Math.max(0, timeStrength * positionStrength);
+      });
+      
+      uniforms.u_prevStrengths.value = strengths;
     }
     
+    uniforms.u_time.value = time / 1000;
     renderer.render(scene, camera);
-  };
-
-  const handleClick = (event: MouseEvent) => {
+    frameId = requestAnimationFrame(animate);
   };
 
   onMount(async () => {
@@ -214,7 +304,6 @@ export default function GraphPaper() {
     
     if (!containerRef) return;
 
-    // Setup Three.js
     scene = new THREE.Scene();
     
     const frustumSize = 1;
@@ -251,8 +340,10 @@ export default function GraphPaper() {
       u_time: { value: 0.0 },
       u_resolution: { value: new THREE.Vector2(width * pixelRatio, height * pixelRatio) },
       u_mouse: { value: new THREE.Vector2(0.5, 0.5) },
-      u_gridSize: { value: 48.0 },
-      u_lineWidth: { value: 0.0125 },
+      u_prevMouse: { value: Array(maxTrailLength).fill(null).map(() => new THREE.Vector2(0.5, 0.5)) },
+      u_prevStrengths: { value: Array(maxTrailLength).fill(0.0) },
+      u_gridSize: { value: 35 * pixelRatio },
+      u_lineWidth: { value: 0.02 }
     };
 
     const geometry = new THREE.PlaneGeometry(2, 2);
@@ -266,12 +357,10 @@ export default function GraphPaper() {
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
-    // Add event listeners to window
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleScroll);
 
-    animate();
+    animate(0);
   });
 
   onCleanup(() => {
@@ -279,10 +368,9 @@ export default function GraphPaper() {
     
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('resize', handleResize);
-    window.removeEventListener('scroll', handleScroll);
     
     cancelAnimationFrame(frameId);
-    renderer?.dispose();
+    renderer.dispose();
   });
 
   return (
