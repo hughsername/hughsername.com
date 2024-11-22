@@ -1,0 +1,25 @@
+:root {
+  --gradient-blue: linear-gradient(
+    45deg,
+    hsl(222deg 100% 50%) 0%,
+    hsl(222deg 100% 48%) 8%,
+    hsl(222deg 100% 47%) 17%,
+    hsl(222deg 100% 45%) 25%,
+    hsl(222deg 100% 43%) 33%,
+    hsl(222deg 100% 41%) 42%,
+    hsl(222deg 100% 40%) 50%,
+    hsl(222deg 100% 38%) 58%,
+    hsl(222deg 100% 36%) 67%,
+    hsl(222deg 100% 35%) 75%,
+    hsl(222deg 100% 33%) 83%,
+    hsl(222deg 100% 32%) 92%,
+    hsl(222deg 99% 30%) 100%
+  );
+
+  --blue-gradient: linear-gradient(188deg, #004CFF 0%, #0049F5 18%, #0048F0 26%, #0045E5 33%, #0042DB 44%, #003FD1 50%, #003DCC 56%, #003AC2 61%, #0037B8 67%, #0035B2 74%, #0031A3 82%, #012E99 100%);
+
+  /* Individual colors from the gradient for use in other contexts */
+  --blue-bright: hsl(222deg 100% 50%);
+  --blue-mid: hsl(222deg 100% 40%);
+  --blue-dark: hsl(222deg 99% 30%);
+}

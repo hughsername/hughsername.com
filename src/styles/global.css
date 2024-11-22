@@ -2,6 +2,9 @@
 @import url('https://fonts.bunny.net/css?family=kantumruy-pro:400,500,600');
 @import url('https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500');
 
+/* Design System Imports */
+@import './colors.css';
+
 /* Modern CSS Reset */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -39,6 +42,7 @@
   --fluid-base: clamp(0.9375rem, calc(0.85rem + 0.44vw), 1.3125rem); /* 15px -> 21px */
   --fluid-md: clamp(1.1875rem, calc(1.05rem + 0.88vw), 2.0625rem); /* 19px -> 33px (h2) */
   --fluid-lg: clamp(1.5rem, calc(1.2rem + 1.23vw), 2.625rem); /* 24px -> 42px (h1) */
+  --fluid-placeholder: clamp(0.75rem, calc(0.7rem + 0.21vw), 0.9375rem); /* 12px -> 15px */
 
   /* Font Families */
   --font-heading: 'Kantumruy Pro', system-ui, sans-serif;
@@ -119,12 +123,14 @@ h2 {
 [role="doc-subtitle"],
 .eyebrow {
   font-family: var(--font-heading);
-  font-size: var(--fluid-sm);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-normal);
-  letter-spacing: var(--tracking-wide);
+  font-size: var(--fluid-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: normal;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--text-eyebrow);
+  text-edge: cap;
+  leading-trim: both;
 }
 
 p {
@@ -232,4 +238,13 @@ nav {
   display: grid;
   gap: var(--space-md);
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+}
+
+/* Fluid Placeholder Text Style */
+.placeholder-text {
+  font-size: var(--fluid-placeholder);
+  line-height: 1.5;
+  color: #666666;
+  font-weight: 300;
+  white-space: pre-line;
 }

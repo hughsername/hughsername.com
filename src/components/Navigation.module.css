@@ -1,34 +1,122 @@
 .nav {
+  position: fixed;
+  top: env(safe-area-inset-top);
+  right: env(safe-area-inset-right);
+  bottom: env(safe-area-inset-bottom);
   width: 76px;
-  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 24px 0;
-  position: relative;
-  z-index: 1;
+  z-index: 10;
 }
 
-.hamburger {
-  margin-bottom: 32px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
+.navList {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
-.icons {
+/* Menu Button Styles */
+.menuLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.menuLabel {
+  font-family: var(--font-body);
+  font-size: var(--fluid-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: -2px;
+}
+
+.menuLink:hover .menuLabel {
+  color: var(--text-body);
+}
+
+/* Icon Group Styles */
+.iconGroup {
+  margin-top: 32px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+}
+
+.iconGroup.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.iconGroup ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  align-items: center;
 }
 
-.icons button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
+/* Icon Link Styles */
+.iconLink {
+  flex-direction: column;
+  gap: 4px;
+  color: #666666;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.iconLink svg {
+  color: #666666;
+  min-width: 20px;
+  min-height: 20px;
+}
+
+.iconLabel {
+  font-family: var(--font-body);
+  font-size: var(--fluid-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  text-align: center;
+  min-width: max-content;
+  color: #666666;
+}
+
+.iconWrapper {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconWrapper > div {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+}
+
+.closeIcon {
+  pointer-events: none;
 }

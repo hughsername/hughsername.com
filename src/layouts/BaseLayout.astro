@@ -1,5 +1,6 @@
 ---
 import GraphPaper from '../components/GraphPaper';
+import Navigation from '../components/Navigation';
 import '../styles/global.css';
 
 interface Props {
@@ -13,7 +14,10 @@ const { title } = Astro.props;
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#FAFAFA" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
@@ -21,6 +25,8 @@ const { title } = Astro.props;
   <body>
     <GraphPaper client:load />
     <slot />
+    <div class="nav-spacer"></div>
+    <Navigation client:load />
   </body>
 </html>
 
@@ -33,16 +39,73 @@ const { title } = Astro.props;
 
   body {
     min-height: 100vh;
-    /* Use the full viewport height, even on mobile browsers */
     min-height: -webkit-fill-available;
-    display: flex;
-    flex-direction: column;
+    height: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 76px;
+    overflow-x: hidden;
+    /* Add padding for iOS safe areas */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    /* Ensure content goes under the status bar */
+    padding-top: 0;
   }
 
   /* Fix for mobile Safari */
   @supports (-webkit-touch-callout: none) {
     body {
       min-height: -webkit-fill-available;
+    }
+  }
+
+  :global(#canvas-container) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
+
+  :global(canvas) {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  :global(main) {
+    grid-column: 1;
+    overflow-x: hidden;
+    overflow-y: visible;
+    min-width: 0;
+  }
+
+  .nav-spacer {
+    grid-column: 2;
+  }
+
+  :global(nav) {
+    grid-column: 2;
+  }
+
+  /* Desktop layout */
+  @media (min-width: 768px) {
+    body {
+      grid-template-columns: 1fr;
+      grid-template-rows: 76px 1fr;
+    }
+
+    :global(main) {
+      grid-row: 2;
+    }
+
+    .nav-spacer {
+      display: none;
+    }
+
+    :global(nav) {
+      grid-row: 1;
+      grid-column: 1;
     }
   }
 </style>

@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { MaskedImage } from '../components/MaskedImage';
+---
+
+<BaseLayout title="Image Test">
+  <div class="container">
+    <MaskedImage
+      src="https://picsum.photos/800/400"
+      alt="Test image with mask"
+      client:load
+    />
+  </div>
+</BaseLayout>
+
+<style>
+  .container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+</style>

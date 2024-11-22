@@ -1,48 +1,71 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Navigation from '../components/Navigation';
+import { FeaturedPost } from '../components/FeaturedPost';
+
+const placeholder = `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do 
+eiusmod tempor incididunt`;
 ---
 
-<BaseLayout title="Hugh Dillon">
-  <div class="layout">
-    <main>
+<BaseLayout>
+  <main>
+    <div class="header">
       <h1>hughsername</h1>
-      {/* Content will go here */}
-    </main>
-    <Navigation client:load />
-  </div>
+      <p class="placeholder-text">
+        {placeholder}
+      </p>
+    </div>
+    <div class="image-container">
+      <FeaturedPost 
+        src="/mountains.png"
+        alt="Mountain landscape with snow-capped peaks"
+        category="LATEST BLOG"
+        title="The Future of Web Development"
+        description={placeholder}
+        href="/blog/future-of-web-dev"
+        client:load 
+      />
+      <FeaturedPost 
+        src="/mountains.png"
+        alt="Mountain landscape with snow-capped peaks"
+        category="OPINION"
+        title="Building with Solid.js"
+        description={placeholder}
+        href="/blog/building-with-solidjs"
+        client:load 
+      />
+      <FeaturedPost 
+        src="/mountains.png"
+        alt="Mountain landscape with snow-capped peaks"
+        category="OPINION"
+        title="Modern CSS Techniques"
+        description={placeholder}
+        href="/blog/modern-css"
+        client:load 
+      />
+    </div>
+  </main>
 </BaseLayout>
 
 <style>
-  .layout {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100vh;
-    height: -webkit-fill-available;
-    display: grid;
-    /* Content first, then nav */
-    grid-template-columns: minmax(0, 1fr) 76px;
-  }
-
   main {
-    grid-column: 1;
-    padding: 24px 0 24px 28px;
-    height: 100%;
-    overflow-y: auto;
-    min-width: 0; /* Prevent content from pushing grid */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
   }
 
-  /* Desktop layout */
-  @media (min-width: 768px) {
-    .layout {
-      grid-template-columns: 1fr;
-      grid-template-rows: 76px 1fr;
-    }
+  .header {
+    max-width: 420px;
+    margin-bottom: 2rem;
+    padding: 24px 28px;
+  }
 
-    main {
-      grid-row: 2;
-      padding: 24px 28px;
-    }
+  .image-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-7);
+    padding-bottom: var(--space-7);
   }
 </style>

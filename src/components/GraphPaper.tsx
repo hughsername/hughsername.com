@@ -21,6 +21,7 @@ const fragmentShader = `
   uniform float u_time;
   uniform float u_gridSize;
   uniform float u_lineWidth;
+  uniform float u_isDesktop;
 
   // Simplex 2D noise
   vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
@@ -121,7 +122,7 @@ const fragmentShader = `
       alpha = 1.0;
     }
 
-    if (alpha > 0.0) {
+    if (alpha > 0.0 && u_isDesktop > 0.5) {
       float hoverStrength = getHoverStrength(st, u_mouse * u_resolution);
       
       float trailStrength = 0.0;
@@ -157,7 +158,13 @@ const fragmentShader = `
   }
 `;
 
-export default function GraphPaper() {
+interface Props {
+  class?: string;
+}
+
+const MOBILE_BREAKPOINT = 768; // px
+
+export default function GraphPaper(props: Props) {
   let containerRef: HTMLDivElement | undefined;
   let renderer: WebGLRenderer;
   let scene: Scene;
@@ -170,6 +177,7 @@ export default function GraphPaper() {
     u_prevStrengths: { value: number[] };
     u_gridSize: { value: number };
     u_lineWidth: { value: number };
+    u_isDesktop: { value: number };
   };
   let frameId: number;
   let pixelRatio: number;
@@ -269,6 +277,15 @@ export default function GraphPaper() {
     camera.updateProjectionMatrix();
     
     uniforms.u_resolution.value.set(width * pixelRatio, height * pixelRatio);
+    
+    // Update isDesktop uniform
+    uniforms.u_isDesktop.value = window.innerWidth >= MOBILE_BREAKPOINT ? 1.0 : 0.0;
+
+    // Clear trail when switching to mobile
+    if (window.innerWidth < MOBILE_BREAKPOINT) {
+      prevMouseRef = [];
+      uniforms.u_prevStrengths.value = Array(maxTrailLength).fill(0.0);
+    }
   };
 
   const animate = (time: number) => {
@@ -296,6 +313,8 @@ export default function GraphPaper() {
     renderer.render(scene, camera);
     frameId = requestAnimationFrame(animate);
   };
+
+  const isDesktop = () => window.innerWidth >= MOBILE_BREAKPOINT;
 
   onMount(async () => {
     if (typeof window === 'undefined') return;
@@ -343,7 +362,8 @@ export default function GraphPaper() {
       u_prevMouse: { value: Array(maxTrailLength).fill(null).map(() => new THREE.Vector2(0.5, 0.5)) },
       u_prevStrengths: { value: Array(maxTrailLength).fill(0.0) },
       u_gridSize: { value: 35 * pixelRatio },
-      u_lineWidth: { value: 0.02 }
+      u_lineWidth: { value: 0.02 },
+      u_isDesktop: { value: isDesktop() ? 1.0 : 0.0 }
     };
 
     const geometry = new THREE.PlaneGeometry(2, 2);
