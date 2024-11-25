@@ -105,7 +105,7 @@ const fragmentShader = `
     vec2 st = gl_FragCoord.xy;
     vec2 grid = fract(st / u_gridSize);
     
-    vec3 gridColor = vec3(0.92);
+    vec3 gridColor = vec3(0.87);  // Darker grid lines to maintain contrast with #ECEBEB background
     // Royal blue variations - all brighter and more saturated
     vec3 baseBlue = vec3(0.45, 0.55, 1.0);      // More saturated royal blue
     vec3 lightBlue = vec3(0.5, 0.65, 1.0);      // Lighter royal blue

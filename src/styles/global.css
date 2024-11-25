@@ -75,7 +75,7 @@
   --color-primary: #4a90e2;
   --color-secondary: #50e3c2;
   --color-text: #2c3e50;
-  --color-background: #FAFAFA;
+  --color-background: #ECEBEB;
   
   /* Component Inner Spacing */
   --component-padding: var(--space-md);
@@ -184,7 +184,7 @@ body {
   color: var(--text-color);
   font-weight: 400;
   font-synthesis: none;
-  background: #FAFAFA;
+  background: #ECEBEB;
 }
 
 /* Ensure all content stays above graph paper */
