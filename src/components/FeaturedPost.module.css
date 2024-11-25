@@ -1,5 +1,4 @@
 .container {
-  container-type: inline-size;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -14,14 +13,8 @@
 .container :global(.masked-image) {
   width: 100%;
   min-width: 677px;
-  max-width: 1200px;
-}
-
-/* When container is wider than 700px, scale the image */
-@container (min-width: 700px) {
-  .container :global(.masked-image) {
-    width: min(100%, 1200px);
-  }
+  max-width: 2000px;
+  margin: 0 auto;
 }
 
 .content {
@@ -34,7 +27,7 @@
   align-self: center;
 }
 
-.content :global(.eyebrow) {
+.category {
   background: var(--blue-gradient);
   background-clip: text;
   -webkit-background-clip: text;
@@ -49,4 +42,9 @@
 .description {
   composes: placeholder-text from global;
   margin: 0;
+}
+
+.link {
+  color: inherit;
+  text-decoration: none;
 }

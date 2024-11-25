@@ -1,9 +1,63 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { FeaturedPost } from '../components/FeaturedPost';
+import { getImage } from 'astro:assets';
+import mountainsHero from '../assets/mountains-hero.jpg';
 
 const placeholder = `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do 
 eiusmod tempor incididunt`;
+
+// Calculate image widths based on container sizes and device pixel ratios
+const baseWidths = [677, 1000, 1200, 1600, 2000];
+const pixelRatios = [1, 1.5, 2, 3];
+const widths = [...new Set(
+  baseWidths.flatMap(width => 
+    pixelRatios.map(ratio => Math.round(width * ratio))
+  ).filter(width => width <= 3024) // Don't exceed source image width
+  .sort((a, b) => a - b)
+)];
+
+// Generate srcset for responsive images
+const images = await Promise.all(
+  widths.map(async (width) => {
+    const image = await getImage({
+      src: mountainsHero,
+      width,
+      height: Math.round(width * (333/677)), // Match mask aspect ratio
+      format: 'webp',
+      quality: 85
+    });
+    return {
+      src: image.src,
+      width: width
+    };
+  })
+);
+
+// Get the smallest image for the src attribute (fallback)
+const defaultImage = images[0];
+const srcset = images.map(img => `${img.src} ${img.width}w`).join(', ');
+
+const posts = [
+  {
+    category: "LATEST BLOG",
+    title: "The Future of Web Development",
+    href: "/blog/future-of-web-dev"
+  },
+  {
+    category: "OPINION",
+    title: "Building with Solid.js",
+    href: "/blog/building-with-solidjs"
+  },
+  {
+    category: "OPINION",
+    title: "Modern CSS Techniques",
+    href: "/blog/modern-css"
+  }
+];
+
+// Define sizes attribute for responsive images
+const sizes = "(min-width: 2000px) 2000px, (min-width: 1600px) 1600px, (min-width: 1200px) 1200px, (min-width: 1000px) 1000px, (min-width: 677px) 677px, 100vw";
 ---
 
 <BaseLayout>
@@ -15,33 +69,19 @@ eiusmod tempor incididunt`;
       </p>
     </div>
     <div class="image-container">
-      <FeaturedPost 
-        src="/mountains.png"
-        alt="Mountain landscape with snow-capped peaks"
-        category="LATEST BLOG"
-        title="The Future of Web Development"
-        description={placeholder}
-        href="/blog/future-of-web-dev"
-        client:load 
-      />
-      <FeaturedPost 
-        src="/mountains.png"
-        alt="Mountain landscape with snow-capped peaks"
-        category="OPINION"
-        title="Building with Solid.js"
-        description={placeholder}
-        href="/blog/building-with-solidjs"
-        client:load 
-      />
-      <FeaturedPost 
-        src="/mountains.png"
-        alt="Mountain landscape with snow-capped peaks"
-        category="OPINION"
-        title="Modern CSS Techniques"
-        description={placeholder}
-        href="/blog/modern-css"
-        client:load 
-      />
+      {posts.map(post => (
+        <FeaturedPost 
+          src={defaultImage.src}
+          srcset={srcset}
+          sizes={sizes}
+          alt="Mountain landscape with snow-capped peaks"
+          category={post.category}
+          title={post.title}
+          description={placeholder}
+          href={post.href}
+          client:load 
+        />
+      ))}
     </div>
   </main>
 </BaseLayout>
@@ -52,6 +92,7 @@ eiusmod tempor incididunt`;
     display: flex;
     flex-direction: column;
     flex: 1;
+    width: 100%;
   }
 
   .header {
@@ -67,5 +108,7 @@ eiusmod tempor incididunt`;
     align-items: flex-end;
     gap: var(--space-7);
     padding-bottom: var(--space-7);
+    width: 100%;
+    container-type: inline-size;
   }
 </style>

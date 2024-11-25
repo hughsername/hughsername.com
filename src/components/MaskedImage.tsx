@@ -1,19 +1,20 @@
-import { Component, createEffect, onMount } from 'solid-js';
-import { createSignal } from 'solid-js';
+import { Component, createSignal, onMount } from 'solid-js';
 import styles from './MaskedImage.module.css';
 
 interface Props {
   src: string;
+  srcset?: string;
   alt: string;
   class?: string;
   positionX?: number;
   positionY?: number;
+  sizes?: string;
 }
 
 export const MaskedImage: Component<Props> = (props) => {
-  let containerRef: HTMLDivElement | undefined;
   const [yPosition, setYPosition] = createSignal('-450px');
-  
+  let containerRef: HTMLDivElement | undefined;
+
   const updatePosition = () => {
     if (!containerRef) return;
     const containerWidth = containerRef.offsetWidth;
@@ -34,15 +35,20 @@ export const MaskedImage: Component<Props> = (props) => {
   return (
     <div 
       class={`${styles.container} masked-image ${props.class ?? ''}`}
-      ref={(el) => { containerRef = el; }}
+      ref={el => { containerRef = el; }}
     >
       <div class={styles.imageContainer}>
         <div class={styles.gradient} />
         <img
           src={props.src}
+          srcset={props.srcset}
           alt={props.alt}
           class={styles.image}
-          style={`object-position: ${props.positionX ?? 0}% ${yPosition()};`}
+          style={`object-position: ${props.positionX ?? 0}% ${yPosition()}`}
+          loading="lazy"
+          decoding="async"
+          sizes={props.sizes}
+          fetchpriority="high"
         />
       </div>
     </div>

@@ -4,6 +4,7 @@ import styles from './FeaturedPost.module.css';
 
 interface FeaturedPostProps {
   src: string;
+  srcset?: string;
   alt: string;
   category: string;
   title: string;
@@ -13,13 +14,20 @@ interface FeaturedPostProps {
 
 export const FeaturedPost: Component<FeaturedPostProps> = (props) => {
   return (
-    <a href={props.href} class={styles.container}>
-      <MaskedImage src={props.src} alt={props.alt} />
+    <article class={styles.container}>
+      <MaskedImage 
+        src={props.src}
+        alt={props.alt}
+        srcset={props.srcset}
+      />
       <div class={styles.content}>
-        <p class="eyebrow">{props.category}</p>
+        <div class={styles.category}>{props.category}</div>
         <h2 class={styles.title}>{props.title}</h2>
         <p class={styles.description}>{props.description}</p>
+        <a href={props.href} class={styles.link}>
+          Read More
+        </a>
       </div>
-    </a>
+    </article>
   );
 };
