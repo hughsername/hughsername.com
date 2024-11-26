@@ -1,5 +1,6 @@
 import { Component, createSignal, onMount } from 'solid-js';
 import styles from './MaskedImage.module.css';
+import GraphPaper from './GraphPaper';
 
 interface Props {
   src: string;
@@ -38,7 +39,9 @@ export const MaskedImage: Component<Props> = (props) => {
       ref={el => { containerRef = el; }}
     >
       <div class={styles.imageContainer}>
-        <div class={styles.gradient} />
+        <div class={styles.gradient}>
+          <GraphPaper class={styles.graphPaper} variant="blue" />
+        </div>
         <img
           src={props.src}
           srcset={props.srcset}

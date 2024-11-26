@@ -22,6 +22,7 @@ const fragmentShader = `
   uniform float u_gridSize;
   uniform float u_lineWidth;
   uniform float u_isDesktop;
+  uniform float u_isBlue;
 
   // Simplex 2D noise
   vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
@@ -105,7 +106,11 @@ const fragmentShader = `
     vec2 st = gl_FragCoord.xy;
     vec2 grid = fract(st / u_gridSize);
     
-    vec3 gridColor = vec3(0.87);  // Darker grid lines to maintain contrast with #ECEBEB background
+    // Choose grid color based on u_isBlue uniform
+    vec3 gridColor = u_isBlue > 0.5 ? 
+      vec3(0.3, 0.5, 1.0) :  // Blue variant
+      vec3(0.87);            // Grey variant
+    
     // Royal blue variations - all brighter and more saturated
     vec3 baseBlue = vec3(0.45, 0.55, 1.0);      // More saturated royal blue
     vec3 lightBlue = vec3(0.5, 0.65, 1.0);      // Lighter royal blue
@@ -160,6 +165,7 @@ const fragmentShader = `
 
 interface Props {
   class?: string;
+  variant?: 'grey' | 'blue';
 }
 
 const MOBILE_BREAKPOINT = 768; // px
@@ -178,6 +184,7 @@ export default function GraphPaper(props: Props) {
     u_gridSize: { value: number };
     u_lineWidth: { value: number };
     u_isDesktop: { value: number };
+    u_isBlue: { value: number };
   };
   let frameId: number;
   let pixelRatio: number;
@@ -363,7 +370,8 @@ export default function GraphPaper(props: Props) {
       u_prevStrengths: { value: Array(maxTrailLength).fill(0.0) },
       u_gridSize: { value: 35 * pixelRatio },
       u_lineWidth: { value: 0.02 },
-      u_isDesktop: { value: isDesktop() ? 1.0 : 0.0 }
+      u_isDesktop: { value: isDesktop() ? 1.0 : 0.0 },
+      u_isBlue: { value: props.variant === 'blue' ? 1.0 : 0.0 }
     };
 
     const geometry = new THREE.PlaneGeometry(2, 2);
