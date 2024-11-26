@@ -1,6 +1,6 @@
 import { Component, createSignal, onMount } from 'solid-js';
 import styles from './MaskedImage.module.css';
-import GraphPaper from './GraphPaper';
+import HUDOverlay from './HUDOverlay';
 
 interface Props {
   src: string;
@@ -40,7 +40,7 @@ export const MaskedImage: Component<Props> = (props) => {
     >
       <div class={styles.imageContainer}>
         <div class={styles.gradient}>
-          <GraphPaper class={styles.graphPaper} variant="blue" />
+          <HUDOverlay class={styles.graphPaper} />
         </div>
         <img
           src={props.src}

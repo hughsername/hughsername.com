@@ -1,0 +1,56 @@
+.container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.cli {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  width: 30%;
+  height: 40%;
+  font-family: monospace;
+  font-size: 11px;
+  line-height: 1.3;
+  overflow: hidden;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  /* Add mask for smooth fade out */
+  -webkit-mask-image: linear-gradient(
+    to top,
+    black 0%,
+    black 70%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to top,
+    black 0%,
+    black 70%,
+    transparent 100%
+  );
+}
+
+.command {
+  white-space: pre;
+  height: 1.3em;
+  color: rgba(255, 255, 255, 0.85); /* Much brighter base color */
+  transition: color 0.7s ease;
+}
+
+/* Last few commands get progressively brighter */
+.command:last-child {
+  color: rgb(255, 255, 255); /* Pure white for current line */
+}
+
+.command:nth-last-child(2) {
+  color: rgba(255, 255, 255, 0.95); /* Almost white previous line */
+}
+
+.command:nth-last-child(3) {
+  color: rgba(255, 255, 255, 0.9); /* Very bright third line */
+}
