@@ -75,15 +75,39 @@ const fragmentShader = `
     return step(mod(rotated.x + rotated.y, spacing), thickness);
   }
 
+  // Hash function for pseudo-random numbers
+  float hash(float n) {
+    return fract(sin(n) * 43758.5453123);
+  }
+
   float animatedBarChart(vec2 st, vec2 center, float time) {
     float result = 0.0;
-    float barWidth = 0.015;
-    float spacing = 0.025;
+    float barWidth = 0.006;
+    float spacing = 0.008;
     float maxHeight = 0.15;
     
-    for(int i = 0; i < 4; i++) {
-      float x = center.x + float(i) * spacing - spacing * 1.5;
-      float height = maxHeight * (sin(time * 1.5 + float(i) * 0.5) * 0.5 + 0.5);
+    for(int i = 0; i < 12; i++) {
+      float x = center.x + float(i) * spacing - spacing * 5.0;  // Moved further right
+      
+      // Create unique random seeds for each bar
+      float seed1 = hash(float(i) * 123.456);
+      float seed2 = hash(float(i) * 789.012);
+      float speed = 1.0 + seed1 * 0.5;
+      float phase = seed2 * TWO_PI;
+      
+      // Modified oscillation to allow complete reduction to zero
+      float wave1 = sin(time * speed + phase);
+      float wave2 = sin(time * speed * 0.7 + phase * 1.3);
+      float wave3 = sin(time * speed * 1.3 + phase * 0.7);
+      
+      float combinedWave = (
+        0.4 * wave1 +
+        0.3 * wave2 +
+        0.3 * wave3
+      );
+      
+      // Square the result to bias towards lower values and ensure it can reach zero
+      float height = maxHeight * pow(max(0.0, (combinedWave + 1.0) * 0.5), 2.0);
       
       vec2 bottomLeft = vec2(x - barWidth/2.0, center.y);
       vec2 topRight = vec2(x + barWidth/2.0, center.y + height);
@@ -101,8 +125,8 @@ const fragmentShader = `
   }
 
   float radarChart(vec2 st, vec2 center, float time) {
-    // Make the radar chart larger and ensure proper scaling
-    float baseRadius = min(u_resolution.x, u_resolution.y) * 0.15;
+    // Make the radar chart smaller while maintaining proportions
+    float baseRadius = min(u_resolution.x, u_resolution.y) * 0.09; 
     float normalizedRadius = baseRadius / min(u_resolution.x, u_resolution.y);
     float result = 0.0;
     
@@ -172,7 +196,7 @@ const fragmentShader = `
     
     // Add vertical marker lines across full width
     float markers = 0.0;
-    float markerSpacing = 0.1;  // Adjust spacing of markers
+    float markerSpacing = 0.1;  
     for(float i = -10.0; i <= 10.0; i += 1.0) {
         markers += smoothstep(0.001, 0.0, abs(toCenter.x - i * markerSpacing));
     }
@@ -223,15 +247,15 @@ const fragmentShader = `
     
     // Varied dash counts and sizes
     float[] dashCounts = float[](
-      3.0,    // 3 large segments
-      24.0,   // Many small segments
-      8.0     // Medium number of segments
+      3.0,    
+      24.0,   
+      8.0     
     );
     
     float[] dashSizes = float[](
-      0.8,    // Large dashes
-      0.3,    // Small dashes
-      0.5     // Medium dashes
+      0.8,    
+      0.3,    
+      0.5     
     );
     
     for(int i = 0; i < 3; i++) {
@@ -251,15 +275,15 @@ const fragmentShader = `
     );
     
     float[] outerDashCounts = float[](
-      16.0,   // Medium-high number of segments
-      5.0,    // Few large segments
-      32.0    // Many tiny segments
+      16.0,   
+      5.0,    
+      32.0    
     );
     
     float[] outerDashSizes = float[](
-      0.4,    // Medium dashes
-      0.7,    // Large dashes
-      0.2     // Small dashes
+      0.4,    
+      0.7,    
+      0.2     
     );
     
     for(int i = 0; i < 3; i++) {
@@ -310,7 +334,7 @@ const fragmentShader = `
     float marginY = 16.0 / u_resolution.y;
     
     // Position widgets
-    vec2 radarPos = vec2(marginX + 0.1, 1.0 - marginY - 0.1 - verticalOffset);
+    vec2 radarPos = vec2(marginX * 0.5 + 64.0/u_resolution.x, 1.0 - marginY - 0.1 - verticalOffset); 
     vec2 wavePos = vec2(marginX, marginY - verticalOffset);
     vec2 barPos = vec2(1.0 - marginX - 0.1, marginY + 0.1 - verticalOffset);
     vec2 centerPos = vec2(0.5, 0.5);
@@ -325,9 +349,9 @@ const fragmentShader = `
 
     // Enhanced scan lines with moderate brightness
     float scanLine = smoothstep(0.0, 0.002, abs(fract(st.y * 20.0 - u_time * 0.5) - 0.5) - 0.48);
-    float fuzz = hash(vec2(st.x * 100.0, u_time * 15.0)) * 0.4 + 0.6; // Restored most of noise range
-    vec3 scanColor = gridColor * 1.2; // Moderate brightness
-    color.rgb += scanColor * scanLine * 0.45 * fuzz; // Moderate intensity
+    float fuzz = hash(vec2(st.x * 100.0, u_time * 15.0)) * 0.4 + 0.6; 
+    vec3 scanColor = gridColor * 1.2; 
+    color.rgb += scanColor * scanLine * 0.45 * fuzz; 
     color.a += scanLine * 0.45 * fuzz;
 
     // Apply widgets
@@ -396,13 +420,13 @@ export default function HUDOverlay(props: Props) {
 
   const typeCommand = async (element: HTMLDivElement, text: string) => {
     isTyping = true;
-    const chunkSize = 3; // Number of characters to type at once
+    const chunkSize = 3; 
     let currentText = '';
     
     for (let i = 0; i < text.length; i += chunkSize) {
       currentText += text.slice(i, i + chunkSize);
       element.textContent = currentText;
-      await new Promise(resolve => setTimeout(resolve, 30)); // Adjust typing speed
+      await new Promise(resolve => setTimeout(resolve, 30)); 
     }
     
     isTyping = false;
@@ -476,7 +500,7 @@ export default function HUDOverlay(props: Props) {
       const pixelRatio = window.devicePixelRatio;
       renderer.setSize(width * pixelRatio, height * pixelRatio, false);
       material.uniforms.u_resolution.value.set(width * pixelRatio, height * pixelRatio);
-      material.uniforms.u_scale.value.set(1, 1); // We don't need scale anymore since we're matching container exactly
+      material.uniforms.u_scale.value.set(1, 1); 
     };
     handleResize();
     
