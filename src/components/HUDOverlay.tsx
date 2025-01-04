@@ -321,10 +321,31 @@ const fragmentShader = `
     return fract(p.x * p.y);
   }
 
+  // Grid with sine wave animation
+  float animatedGrid(vec2 st) {
+    vec2 grid = fract(st * u_gridSize);
+    
+    // Create sine wave displacement with increased amplitude
+    float displacement = sin(st.y * 3.0 + u_time * 1.5) * 0.4;
+    grid.x += displacement;
+    
+    // Create thicker grid lines with more intensity
+    float lines = smoothstep(0.1, 0.0, min(grid.x, grid.y));
+    
+    return lines * 0.8;  // Increased intensity to 80%
+  }
+
   void main() {
-    vec2 st = gl_FragCoord.xy / u_resolution;
+    vec2 st = gl_FragCoord.xy/u_resolution.xy;
+    st = applyScale(st);
+    
+    vec3 color = vec3(0.0);
+    
+    // Add the animated grid
+    color += vec3(animatedGrid(st));
+    
     vec2 grid = fract(gl_FragCoord.xy / u_gridSize);
-    vec4 color = vec4(0.0);
+    vec4 finalColor = vec4(0.0);
     vec3 gridColor = vec3(0.3, 0.5, 1.0);
 
     float verticalOffset = 96.0 / u_resolution.y;
@@ -344,15 +365,32 @@ const fragmentShader = `
         smoothstep(0.0, 0.03, grid.x) * (1.0 - smoothstep(0.97, 1.0, grid.x)),
         smoothstep(0.0, 0.03, grid.y) * (1.0 - smoothstep(0.97, 1.0, grid.y))
     );
-    color.rgb += gridColor * line * 0.3;
-    color.a = line * 0.3;
+    finalColor.rgb += gridColor * line * 0.3;
+    finalColor.a = line * 0.3;
 
-    // Enhanced scan lines with moderate brightness
-    float scanLine = smoothstep(0.0, 0.002, abs(fract(st.y * 20.0 - u_time * 0.5) - 0.5) - 0.48);
-    float fuzz = hash(vec2(st.x * 100.0, u_time * 15.0)) * 0.4 + 0.6; 
-    vec3 scanColor = gridColor * 1.2; 
-    color.rgb += scanColor * scanLine * 0.45 * fuzz; 
-    color.a += scanLine * 0.45 * fuzz;
+    // Enhanced scan lines with glitch effect
+    float glitchPeriod = 8.0; // Glitch every 8 seconds
+    float glitchPhase = fract(u_time / glitchPeriod);
+    float glitchActive = smoothstep(0.0, 0.02, glitchPhase) * 
+                        smoothstep(0.06, 0.04, glitchPhase);
+    
+    // Vertical position with glitch
+    float scanY = st.y;
+    scanY += (hash(floor(st.x * 10.0) + u_time) * 2.0 - 1.0) * 0.02 * glitchActive;
+    
+    float scanLine = smoothstep(0.0, 0.002, abs(fract(scanY * 20.0 - u_time * 0.5) - 0.5) - 0.48);
+    float fuzz = hash(vec2(st.x * 100.0, u_time * 15.0)) * 0.4 + 0.6;
+    
+    // Add extra noise during glitch
+    fuzz += hash(vec2(st.x * 200.0, floor(u_time * 60.0))) * 0.3 * glitchActive;
+    
+    vec3 scanColor = gridColor * 1.2;
+    // Subtle color distortion during glitch
+    scanColor.r *= 1.0 + (0.2 * glitchActive * fuzz);
+    scanColor.b *= 1.0 - (0.1 * glitchActive * fuzz);
+    
+    finalColor.rgb += scanColor * scanLine * 0.45 * fuzz;
+    finalColor.a += scanLine * 0.45 * fuzz;
 
     // Apply widgets
     vec2 offsetSt = st + vec2(0.0, verticalOffset);
@@ -363,24 +401,27 @@ const fragmentShader = `
     
     vec3 widgetColor = gridColor * 1.5;
     
-    color.rgb += widgetColor * radar;
-    color.a += radar * 0.8;
+    finalColor.rgb += widgetColor * radar;
+    finalColor.a += radar * 0.8;
     
-    color.rgb += widgetColor * wave;
-    color.a += wave * 0.8;
+    finalColor.rgb += widgetColor * wave;
+    finalColor.a += wave * 0.8;
     
-    color.rgb += widgetColor * bars;
-    color.a += bars * 0.8;
+    finalColor.rgb += widgetColor * bars;
+    finalColor.a += bars * 0.8;
 
-    color.rgb += widgetColor * visor;
-    color.a += visor * 0.8;
+    finalColor.rgb += widgetColor * visor;
+    finalColor.a += visor * 0.8;
 
-    gl_FragColor = color;
+    gl_FragColor = finalColor;
   }
 `;
 
 interface Props {
   class?: string;
+  onToggleRadar?: () => void;
+  onToggleWave?: () => void;
+  onToggleBars?: () => void;
 }
 
 export default function HUDOverlay(props: Props) {
@@ -538,6 +579,32 @@ export default function HUDOverlay(props: Props) {
     <div class={`${styles.container} ${props.class || ''}`} ref={container}>
       <canvas ref={canvas} />
       <div class={styles.cli} ref={cliContainer}></div>
+      <div class={styles.buttonContainer} role="group" aria-label="HUD Controls">
+        <button
+          class={styles.hudButton}
+          onClick={() => props.onToggleRadar?.()}
+          aria-label="Toggle Radar Display"
+          tabIndex={0}
+        >
+          RADAR
+        </button>
+        <button
+          class={styles.hudButton}
+          onClick={() => props.onToggleWave?.()}
+          aria-label="Toggle Wave Display"
+          tabIndex={0}
+        >
+          WAVE
+        </button>
+        <button
+          class={styles.hudButton}
+          onClick={() => props.onToggleBars?.()}
+          aria-label="Toggle Bar Display"
+          tabIndex={0}
+        >
+          BARS
+        </button>
+      </div>
     </div>
   );
 }
