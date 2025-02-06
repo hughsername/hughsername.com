@@ -40,7 +40,8 @@
   z-index: -2; /* Behind the menu items */
   overflow: hidden;
   pointer-events: none;
-  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.4s ease-in;
+  transition-delay: 0.2s; /* Start fading in after menu expands */
 }
 
 .shaderContainer canvas {
@@ -109,7 +110,16 @@
   width: calc(100% - 32px);
   height: calc(100% - 24px);
   opacity: 1;
-  transition-delay: 0.3s;
+  transition: opacity 0.3s ease-in 0.2s; /* Delay fade in until menu expands */
+}
+
+/* Ensure size changes are instant but opacity is smooth */
+.shaderContainer {
+  width: calc(100% - 32px) !important;
+  height: calc(100% - 24px) !important;
+  transform: translateZ(0); /* Force GPU acceleration */
+  will-change: opacity;
+  transition: opacity 0.2s ease-out; /* Quick fade out */
 }
 
 /* Show effects on hover */
@@ -141,7 +151,8 @@
 .iconGroup {
   height: 0;
   opacity: 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.2s, /* Delay collapse until shader fades */
+              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
   pointer-events: none;
   border-radius: 12px;
   overflow: hidden;
@@ -152,6 +163,8 @@
   opacity: 1;
   pointer-events: all;
   color: #FFF;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), /* No delay when opening */
+              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .iconGroup.open .iconLink,

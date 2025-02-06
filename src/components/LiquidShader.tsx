@@ -21,22 +21,13 @@ const fragmentShader = `
     vec2 i = floor(p);
     vec2 f = fract(p);
     
-    // Improved smoothing for better fluid motion
-    f = f*f*f*(f*(f*6.0-15.0)+10.0);
+    f = f*f*(3.0-2.0*f);
     
     float n = mix(mix(hash(i + vec2(0.0,0.0)), 
                       hash(i + vec2(1.0,0.0)), f.x),
                   mix(hash(i + vec2(0.0,1.0)), 
                       hash(i + vec2(1.0,1.0)), f.x), f.y);
     return n;
-  }
-
-  vec2 curl(vec2 p) {
-    float eps = 0.01;
-    float n = noise(p);
-    float a = noise(p + vec2(eps, 0.0));
-    float b = noise(p + vec2(0.0, eps));
-    return vec2(b - n, n - a) / eps;
   }
 
   float fbm(vec2 p) {
@@ -56,35 +47,36 @@ const fragmentShader = `
     vec2 uv = gl_FragCoord.xy / min(resolution.x, resolution.y);
     // Center the effect
     uv = uv + vec2(0.5) - vec2(resolution.x, resolution.y) / min(resolution.x, resolution.y) * 0.5;
-    float t = time * 0.3; // Faster base time
+    float t = time * 0.15; // Slightly slower base time for smoother motion
     
-    // Create dynamic flow field
-    vec2 p = uv * 0.8;
-    vec2 velocity = curl(p + t * 0.2); // Add curl noise for swirling
+    // Create rotating UV coordinates for swirling
+    float angle = t * 0.2;
+    mat2 rot = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+    vec2 rotUV = (uv - 0.5) * rot + 0.5;
     
-    // Create more dynamic motion
-    vec2 offset1 = velocity * 0.4;
-    vec2 offset2 = vec2(cos(t * 0.5), sin(t * 0.7)) * 0.3;
-    
-    // Layer multiple flow fields
-    float flow1 = fbm(p + offset1 + t * 0.4);
-    float flow2 = fbm(p * 1.4 - offset2 + t * 0.3);
-    float flow = mix(flow1, flow2, 0.5);
+    // Create base flow field with larger scale
+    vec2 p = rotUV * 0.8;
+    float flow = fbm(p + t * 0.5); // Increased flow speed
     
     // Add dynamic turbulence
-    vec2 turbulence = curl(p * 1.5 + flow * 0.5);
+    vec2 shift1 = vec2(sin(t * 0.3) * 0.4, cos(t * 0.4) * 0.4); // Circular motion
+    vec2 shift2 = vec2(cos(t * 0.4) * 0.3, sin(t * 0.3) * 0.3);
     
-    // Create more dynamic ink-like effect
-    float ink = fbm(p + turbulence + vec2(flow1, flow2) * 2.0);
+    float f1 = fbm(p + flow + shift1);
+    float f2 = fbm(p + flow * 2.5 + shift2); // Increased flow multiplication
+    
+    // Create ink-like effect with more movement
+    vec2 inkOffset = vec2(cos(t * 0.2), sin(t * 0.3)) * 0.3;
+    float ink = fbm(p + vec2(f1, f2) * 2.5 + inkOffset);
     
     // Add fine detail with adjusted scale
     float detail = fbm(p * 2.5 + ink);
     
-    // Figma gradient blues
-    vec3 brightBlue = vec3(0.0/255.0, 76.0/255.0, 255.0/255.0);    // #004CFF
-    vec3 midBlue = vec3(0.0/255.0, 69.0/255.0, 245.0/255.0);      // #0045E5
-    vec3 darkBlue = vec3(0.0/255.0, 61.0/255.0, 220.0/255.0);     // #003DDC
-    vec3 accentBlue = vec3(0.0/255.0, 55.0/255.0, 184.0/255.0);   // #0037B8
+    // Navy gradient blues
+    vec3 brightBlue = vec3(0.0/255.0, 55.0/255.0, 235.0/255.0);    // #0037EB
+    vec3 midBlue = vec3(0.0/255.0, 45.0/255.0, 205.0/255.0);      // #002DCD
+    vec3 darkBlue = vec3(0.0/255.0, 35.0/255.0, 175.0/255.0);     // #0023AF
+    vec3 accentBlue = vec3(0.0/255.0, 25.0/255.0, 145.0/255.0);   // #001991
     
     // Create dynamic color blend
     float blend = smoothstep(0.2, 0.8, ink + detail * 0.4);
