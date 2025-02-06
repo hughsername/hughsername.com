@@ -65,12 +65,18 @@ export default function Navigation() {
 
   return (
     <nav class={styles.nav} aria-label="Main">
+      <div 
+        class={styles.menuTrigger}
+        onClick={toggleMenu}
+        role="button"
+        tabIndex={0}
+        aria-expanded={isOpen()}
+        aria-controls="nav-menu"
+      />
       <ul class={styles.navList}>
         <li>
-          <a 
-            href="#" 
-            class={styles.menuLink} 
-            onClick={toggleMenu}
+          <div 
+            class={styles.menuLink}
             aria-expanded={isOpen()}
             aria-controls="nav-menu"
           >
@@ -85,7 +91,7 @@ export default function Navigation() {
             <span class={styles.menuLabel}>
               {isOpen() ? 'close' : 'menu'}
             </span>
-          </a>
+          </div>
         </li>
         <li 
           class={`${styles.iconGroup} ${isOpen() ? styles.open : ''}`}

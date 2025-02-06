@@ -3,12 +3,144 @@
   top: env(safe-area-inset-top);
   right: env(safe-area-inset-right);
   bottom: env(safe-area-inset-bottom);
-  width: 76px;
+  width: 96px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 24px 0;
+  align-items: flex-end;
+  padding: 24px 16px;
   z-index: 10;
+  pointer-events: none; /* This makes the nav container ignore mouse events */
+}
+
+/* Create a clickable area for the menu button */
+.menuTrigger {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 11;
+  pointer-events: auto; /* Re-enable mouse events for this element */
+}
+
+/* Border and background container */
+.nav::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  opacity: 0;
+  z-index: -1;
+  background: 
+    linear-gradient(hsl(0deg 0% 100% / 0.2), hsl(0deg 0% 100% / 0.2)) padding-box,
+    conic-gradient(
+      from var(--border-angle),
+      rgb(33, 37, 104) 0%, 
+      rgb(85, 112, 255) 25%, 
+      rgb(140, 180, 255) 50%,
+      rgb(85, 112, 255) 75%, 
+      rgb(33, 37, 104) 100%
+    ) border-box;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: 
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  padding: 2px;
+  transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              --border-angle 0.3s ease;
+}
+
+/* Blur effect */
+.nav::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  opacity: 0;
+  z-index: -2;
+  backdrop-filter: blur(3.7px);
+  -webkit-backdrop-filter: blur(3.7px);
+  transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+
+/* Expand background when menu is open */
+.nav::before,
+.nav::after {
+  height: 64px;
+}
+
+/* Open state */
+.nav:has(.iconGroup.open)::before {
+  height: calc(100% - 24px);
+  opacity: 1;
+}
+
+.nav:has(.iconGroup.open)::after {
+  height: calc(100% - 28px); /* 24px + 4px border */
+  opacity: 1;
+}
+
+/* Show background on hover */
+.nav:has(.menuTrigger:hover)::before,
+.nav:has(.menuTrigger:hover)::after {
+  opacity: 1;
+}
+
+/* Gradient border animation */
+@property --border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0turn;
+}
+
+@keyframes borderRotate {
+  to {
+    --border-angle: 1turn;
+  }
+}
+
+/* Add rotating border when hovered */
+.nav:has(.menuTrigger:hover)::before {
+  animation: borderRotate 1.5s linear infinite;
+}
+
+/* Slower rotation when open */
+.nav:has(.iconGroup.open)::before {
+  animation: borderRotate 12s linear infinite;
+}
+
+
+/* Menu open state */
+.iconGroup {
+  height: 0;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.iconGroup.open {
+  height: 200px;
+  opacity: 1;
+  pointer-events: all;
 }
 
 .navList {
@@ -20,6 +152,8 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  width: 64px; /* Match container width */
+  pointer-events: auto; /* Re-enable mouse events for the list */
 }
 
 /* Menu Button Styles */
@@ -51,8 +185,8 @@
   margin-top: 32px;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-20px);
-  transition: all 0.3s ease;
+  transform: translateY(-12px);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .iconGroup.open {
