@@ -1,4 +1,4 @@
-import { createSignal, onMount } from 'solid-js';
+import { createSignal, onMount, Show } from 'solid-js';
 import styles from './Navigation.module.css';
 import { MenuIcon } from './MenuIcon';
 import { CloseIcon } from './CloseIcon';
@@ -6,9 +6,15 @@ import { PostsIcon } from './PostsIcon';
 import { WorkIcon } from './WorkIcon';
 import { HughIcon } from './HughIcon';
 import { JoinIcon } from './JoinIcon';
+import { LiquidShader } from './LiquidShader';
 import gsap from 'gsap';
 
 export default function Navigation() {
+  const [isClient, setIsClient] = createSignal(false);
+
+  onMount(() => {
+    setIsClient(true);
+  });
   const [isOpen, setIsOpen] = createSignal(false);
   let menuIconRef: HTMLDivElement;
   let closeIconRef: HTMLDivElement;
@@ -65,6 +71,11 @@ export default function Navigation() {
 
   return (
     <nav class={styles.nav} aria-label="Main">
+      <div class={styles.shaderContainer}>
+        <Show when={isClient()}>
+          <LiquidShader />
+        </Show>
+      </div>
       <div 
         class={styles.menuTrigger}
         onClick={toggleMenu}
