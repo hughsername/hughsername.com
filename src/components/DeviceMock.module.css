@@ -1,0 +1,55 @@
+.deviceFrame {
+  width: 1000px;
+  height: 700px;
+  border-radius: 42.624px;
+  border: 2px solid #212568;
+  background: #222;
+  box-shadow: -42.412px 42.412px 98.961px 0px rgba(0, 0, 0, 0.50);
+  position: relative;
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute;
+  inset: 2px;
+  background: #DCDCDC;
+  border-radius: 39px;
+  overflow: hidden;
+}
+
+.imageContainer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 120%;
+  object-fit: cover;
+  object-position: center -450px;
+  opacity: 0.4;
+  z-index: 1;
+}
+
+.gradient {
+  position: absolute;
+  inset: 0;
+  background: var(--blue-gradient);
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: overlay;
+}
+
+/* Add a subtle inner shadow */
+.deviceFrame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 42.624px;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}

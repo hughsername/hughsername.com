@@ -94,9 +94,9 @@ export default function Navigation() {
         >
           <ul>
             <li>
-              <a href="/posts" class={styles.iconLink} aria-label="Posts">
+              <a href="/blog" class={styles.iconLink} aria-label="Blog">
                 <PostsIcon />
-                <span class={styles.iconLabel}>posts</span>
+                <span class={styles.iconLabel}>blog</span>
               </a>
             </li>
             <li>
