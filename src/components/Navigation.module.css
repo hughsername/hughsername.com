@@ -26,14 +26,15 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  position: relative;
 }
 
 /* Glass effect container */
 .menuLink::before {
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: 12px;
+  inset: 2px;
+  border-radius: 10px;
   backdrop-filter: blur(4px) saturate(180%);
   -webkit-backdrop-filter: blur(4px) saturate(180%);
   background: rgba(255, 255, 255, 0.05);
@@ -44,6 +45,46 @@
 
 .menuLink:hover::before {
   opacity: 1;
+}
+
+/* Show border on hover only when menu is closed */
+.menuLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: conic-gradient(
+    from var(--border-angle),
+    rgb(33, 37, 104) 0%, 
+    rgb(85, 112, 255) 25%, 
+    rgb(140, 180, 255) 50%,
+    rgb(85, 112, 255) 75%, 
+    rgb(33, 37, 104) 100%
+  );
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: 
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  z-index: 1;
+  padding: 2px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* No delay when menu opens (border disappears instantly) */
+.navList:has(.iconGroup.open) li:first-child .menuLink::after {
+  transition: opacity 0s;
+}
+
+/* Delay only when menu is closed and we hover */
+.navList:not(:has(.iconGroup.open)) li:first-child .menuLink:hover::after {
+  opacity: 1;
+  animation: borderRotate 6s linear infinite;
+  transition-delay: 0.5s;
 }
 
 /* Content container */
@@ -58,13 +99,15 @@
   top: 16px;
   right: 16px;
   width: 64px;
-  height: 64px;
+  height: calc(100vh - 32px); /* Full viewport height minus top/bottom margin */
   border-radius: 12px;
   opacity: 0;
   z-index: -2; /* Behind the menu items */
   overflow: hidden;
   pointer-events: none;
-  transition: opacity 0.4s ease-in;
+  transform: scale(0.2, 0.2);
+  transform-origin: top right;
+  transition: opacity 0.4s ease-in, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   transition-delay: 0.2s; /* Start fading in after menu expands */
 }
 
@@ -132,19 +175,14 @@
 }
 
 .nav:has(.iconGroup.open) .shaderContainer {
-  width: calc(100% - 32px);
-  height: calc(100% - 24px);
+  transform: scale(1, 1);
   opacity: 1;
-  transition: opacity 0.3s ease-in 0.2s; /* Delay fade in until menu expands */
 }
 
-/* Ensure size changes are instant but opacity is smooth */
+/* Force GPU acceleration */
 .shaderContainer {
-  width: calc(100% - 32px) !important;
-  height: calc(100% - 24px) !important;
-  transform: translateZ(0); /* Force GPU acceleration */
-  will-change: opacity;
-  transition: opacity 0.2s ease-out; /* Quick fade out */
+  transform: translateZ(0);
+  will-change: transform, opacity;
 }
 
 /* Show effects on hover */

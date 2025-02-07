@@ -15,22 +15,22 @@ export default function Navigation() {
   onMount(() => {
     setIsClient(true);
   });
-  const [isOpen, setIsOpen] = createSignal(true);
+  const [isOpen, setIsOpen] = createSignal(false);
   let menuIconRef: HTMLDivElement;
   let closeIconRef: HTMLDivElement;
 
   onMount(() => {
     setIsClient(true);
-    // Initialize with close icon since menu starts open
+    // Initialize with menu icon since menu starts closed
     gsap.set(menuIconRef, {
-      opacity: 0,
-      scale: 0.8,
-      rotate: 45
-    });
-    gsap.set(closeIconRef, {
       opacity: 1,
       scale: 1,
       rotate: 0
+    });
+    gsap.set(closeIconRef, {
+      opacity: 0,
+      scale: 0.8,
+      rotate: 45
     });
   });
 
