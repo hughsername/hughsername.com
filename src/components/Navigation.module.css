@@ -99,16 +99,21 @@
   top: 16px;
   right: 16px;
   width: 64px;
-  height: calc(100vh - 32px); /* Full viewport height minus top/bottom margin */
+  height: calc(100vh - 32px); /* Always full height for proper density */
   border-radius: 12px;
   opacity: 0;
   z-index: -2; /* Behind the menu items */
   overflow: hidden;
   pointer-events: none;
-  transform: scale(0.2, 0.2);
+  transform: scale(0.2, 1);
   transform-origin: top right;
-  transition: opacity 0.4s ease-in, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  transition-delay: 0.2s; /* Start fading in after menu expands */
+  transition: 
+    transform 0.6s cubic-bezier(0.76, 0, 0.24, 1),
+    clip-path 0.6s cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+  clip-path: inset(0 0 calc(100% - 64px) 0 round 12px); /* Clip to menu height initially with rounded corners */
+  mask: linear-gradient(black, black);
+  -webkit-mask: linear-gradient(black, black);
 }
 
 .shaderContainer canvas {
@@ -133,7 +138,7 @@
   top: 16px;
   right: 16px;
   width: 64px;
-  height: 80px; /* Match menuTrigger height */
+  height: 64px;
   border-radius: 12px;
   opacity: 0;
   z-index: 1;
@@ -154,8 +159,8 @@
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
   mask-composite: exclude;
-  transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+  transition: height 0.6s cubic-bezier(0.76, 0, 0.24, 1),
+              opacity 0.6s cubic-bezier(0.76, 0, 0.24, 1),
               --border-angle 0.3s ease;
   box-shadow: -42px 42px 99px 0px rgba(0, 0, 0, 0.50);
 }
@@ -176,13 +181,14 @@
 
 .nav:has(.iconGroup.open) .shaderContainer {
   transform: scale(1, 1);
+  clip-path: inset(0 0 0 0 round 12px); /* Show full height with rounded corners */
   opacity: 1;
 }
 
 /* Force GPU acceleration */
 .shaderContainer {
   transform: translateZ(0);
-  will-change: transform, opacity;
+  will-change: transform, opacity, clip-path;
 }
 
 /* Show effects on hover */
@@ -245,26 +251,33 @@
   padding-top: 12px; /* Add top padding */
 }
 
-.iconGroup.open .iconLink,
-.iconGroup.open .iconLabel {
+.iconGroup .iconLink,
+.iconGroup .iconLabel {
   color: #BBB;
+  transition: color 0.3s ease;
 }
 
 .iconGroup.open .iconLink svg path,
 .iconGroup.open .iconLink svg rect,
 .iconGroup.open .iconLink svg circle,
-.iconGroup.open .iconLink svg polyline {
+.iconGroup.open .iconLink svg polyline,
+.iconGroup:not(.open) .iconLink svg path,
+.iconGroup:not(.open) .iconLink svg rect,
+.iconGroup:not(.open) .iconLink svg circle,
+.iconGroup:not(.open) .iconLink svg polyline {
   stroke: #FAFAFA;
   opacity: 1;
   visibility: visible;
+  transition: stroke 0.3s ease;
 }
 
 /* Style for the close icon */
 .closeIcon svg path,
 .closeIcon svg rect,
 .closeIcon svg circle {
-  stroke: url(#whiteGradient);
+  stroke: #FAFAFA;
   stroke-width: 1.5;
+  transition: stroke 0.3s ease;
 }
 
 .nav:has(.iconGroup.open) .menuLabel {
@@ -330,17 +343,20 @@
   color: inherit;
   position: relative;
   z-index: 12; /* Above everything */
+  font-size: 12px;
+  transition: color 0.3s ease;
 }
 
 .menuLabel {
   font-family: var(--font-body);
-  font-size: var(--fluid-xs);
+  font-size: 12px;
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-normal);
   color: var(--text-muted);
   text-align: center;
   position: relative;
   z-index: 2;
+  transition: color 0.3s ease;
 }
 
 .menuLink:hover .menuLabel {
@@ -376,13 +392,15 @@
 .iconLink {
   flex-direction: column;
   gap: 4px;
-  color: #666666;
+  color: #BBB;
   text-decoration: none;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 44px;
   min-height: 44px;
+  font-size: 12px;
+  transition: color 0.3s ease;
 }
 
 .iconLink svg {
