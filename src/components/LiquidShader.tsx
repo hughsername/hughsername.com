@@ -47,30 +47,44 @@ const fragmentShader = `
     vec2 uv = gl_FragCoord.xy / min(resolution.x, resolution.y);
     // Center the effect
     uv = uv + vec2(0.5) - vec2(resolution.x, resolution.y) / min(resolution.x, resolution.y) * 0.5;
-    float t = time * 0.15; // Slightly slower base time for smoother motion
+    float t = time * 0.25; // Moderate base speed
     
-    // Create rotating UV coordinates for swirling
-    float angle = t * 0.2;
-    mat2 rot = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
-    vec2 rotUV = (uv - 0.5) * rot + 0.5;
+    // Create main rotation for stability
+    float mainAngle = t * 0.2;
+    mat2 mainRot = mat2(cos(mainAngle), -sin(mainAngle), sin(mainAngle), cos(mainAngle));
+    vec2 rotUV = (uv - 0.5) * mainRot + 0.5;
     
-    // Create base flow field with larger scale
-    vec2 p = rotUV * 0.8;
-    float flow = fbm(p + t * 0.5); // Increased flow speed
+    // Create secondary subtle counter-rotation for complexity
+    float subAngle = -t * 0.15;
+    mat2 subRot = mat2(cos(subAngle), -sin(subAngle), sin(subAngle), cos(subAngle));
+    vec2 subRotUV = (uv - 0.5) * subRot + 0.5;
     
-    // Add dynamic turbulence
-    vec2 shift1 = vec2(sin(t * 0.3) * 0.4, cos(t * 0.4) * 0.4); // Circular motion
-    vec2 shift2 = vec2(cos(t * 0.4) * 0.3, sin(t * 0.3) * 0.3);
+    // Create two flow fields at different scales
+    vec2 p1 = rotUV * 1.1;    // Larger primary swirls
+    vec2 p2 = subRotUV * 0.7;  // Smaller detail layer
     
-    float f1 = fbm(p + flow + shift1);
-    float f2 = fbm(p + flow * 2.5 + shift2); // Increased flow multiplication
+    // Dynamic flow with varied speeds
+    float flow1 = fbm(p1 + t * 0.7);
+    float flow2 = fbm(p2 - t * 0.5);
     
-    // Create ink-like effect with more movement
-    vec2 inkOffset = vec2(cos(t * 0.2), sin(t * 0.3)) * 0.3;
-    float ink = fbm(p + vec2(f1, f2) * 2.5 + inkOffset);
+    // Create more organic movement
+    vec2 shift1 = vec2(sin(t * 0.4) * 0.5, cos(t * 0.6) * 0.5);
+    vec2 shift2 = vec2(cos(t * 0.5) * 0.4, sin(t * 0.3) * 0.4);
     
-    // Add fine detail with adjusted scale
-    float detail = fbm(p * 2.5 + ink);
+    // Combine flows with more variation
+    float f1 = fbm(p1 + flow1 + shift1);
+    float f2 = fbm(p2 + flow2 + shift2);
+    
+    // Create paint-like swirls
+    vec2 paintOffset = vec2(cos(t * 0.3), sin(t * 0.4)) * 0.4;
+    float paint = fbm(p1 + vec2(f1, f2) * 2.0 + paintOffset);
+    
+    // Add fine details that move independently
+    float detail = mix(
+      fbm(p1 * 2.0 + paint),
+      fbm(p2 * 1.5 + f2),
+      0.7
+    );
     
     // Navy gradient blues
     vec3 brightBlue = vec3(0.0/255.0, 55.0/255.0, 235.0/255.0);    // #0037EB
@@ -78,25 +92,28 @@ const fragmentShader = `
     vec3 darkBlue = vec3(0.0/255.0, 35.0/255.0, 175.0/255.0);     // #0023AF
     vec3 accentBlue = vec3(0.0/255.0, 25.0/255.0, 145.0/255.0);   // #001991
     
-    // Create dynamic color blend
-    float blend = smoothstep(0.2, 0.8, ink + detail * 0.4);
+    // Enhanced color blending
+    float blend = smoothstep(0.2, 0.8, paint + detail * 0.5);
     vec3 baseColor = mix(darkBlue, brightBlue, blend);
     
-    // Add color variation from gradient
-    float variation = smoothstep(0.4, 0.9, detail);
-    baseColor = mix(baseColor, midBlue, variation * 0.4);
+    // More dramatic color variations
+    float variation = smoothstep(0.3, 0.9, detail);
+    baseColor = mix(baseColor, midBlue, variation * 0.6);
     
-    // Add brighter accents
-    float highlights = smoothstep(0.6, 0.95, detail);
-    baseColor = mix(baseColor, brightBlue * 1.2, highlights * 0.3);
+    // Brighter, more paint-like highlights
+    float highlights = smoothstep(0.7, 0.95, detail);
+    baseColor = mix(baseColor, brightBlue * 1.3, highlights * 0.4);
     
-    // Ensure dark areas stay vibrant
-    float shadows = smoothstep(0.3, 0.7, 1.0 - ink);
-    vec3 color = mix(baseColor, accentBlue, shadows * 0.5);
+    // Deeper shadows for contrast
+    float shadows = smoothstep(0.2, 0.6, 1.0 - paint);
+    vec3 color = mix(baseColor, accentBlue, shadows * 0.6);
     
-    // Add subtle bright bloom
-    float bloom = smoothstep(0.7, 0.9, ink + detail);
-    color += bloom * brightBlue * 0.15;
+    // Enhanced bloom effect
+    float bloom = smoothstep(0.6, 0.9, paint + detail);
+    color += bloom * brightBlue * 0.2;
+    
+    // Add subtle color variation based on rotation
+    color += vec3(0.02, 0.03, 0.05) * sin(mainAngle + subAngle);
     
     gl_FragColor = vec4(color, 0.95);
   }
