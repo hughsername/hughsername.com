@@ -170,7 +170,7 @@
 
 /* Open state */
 .nav:has(.iconGroup.open)::before {
-  height: calc(100% - 24px);
+  height: calc(100vh - 32px);
   opacity: 1;
 }
 
