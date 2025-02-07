@@ -72,19 +72,52 @@
   z-index: 1;
   padding: 2px;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0s ease;
 }
 
-/* No delay when menu opens (border disappears instantly) */
-.navList:has(.iconGroup.open) li:first-child .menuLink::after {
+/* Menu button border and hover states */
+.menuLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: conic-gradient(
+    from var(--border-angle),
+    rgb(33, 37, 104) 0%, 
+    rgb(85, 112, 255) 25%, 
+    rgb(140, 180, 255) 50%,
+    rgb(85, 112, 255) 75%, 
+    rgb(33, 37, 104) 100%
+  );
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: 
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  z-index: 1;
+  padding: 2px;
+  opacity: 0;
+  transition: opacity 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+  animation: borderRotate 6s linear infinite;
+}
+
+/* Default instant hover when menu hasn't been opened */
+.menuLink:hover::after {
+  opacity: 1;
+}
+
+/* Hide hover when menu is open */
+.nav:has(.iconGroup.open) .menuLink::after {
+  opacity: 0;
   transition: opacity 0s;
 }
 
-/* Delay only when menu is closed and we hover */
-.navList:not(:has(.iconGroup.open)) li:first-child .menuLink:hover::after {
+/* Smooth fade in when menu is closing */
+.nav:has(.iconGroup:not(.open)[style*="visibility: visible"]) .menuLink:hover::after {
   opacity: 1;
-  animation: borderRotate 6s linear infinite;
-  transition-delay: 0.5s;
 }
 
 /* Content container */
