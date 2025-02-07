@@ -36,6 +36,7 @@ export default function Navigation() {
 
   const toggleMenu = (e: MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent event bubbling
     setIsOpen(!isOpen());
 
     const duration = 0.4;
@@ -83,18 +84,13 @@ export default function Navigation() {
           <LiquidShader />
         </Show>
       </div>
-      <div 
-        class={styles.menuTrigger}
-        onClick={toggleMenu}
-        role="button"
-        tabIndex={0}
-        aria-expanded={isOpen()}
-        aria-controls="nav-menu"
-      />
       <ul class={styles.navList}>
         <li>
           <div 
             class={styles.menuLink}
+            onClick={toggleMenu}
+            role="button"
+            tabIndex={0}
             aria-expanded={isOpen()}
             aria-controls="nav-menu"
           >
