@@ -1,21 +1,28 @@
 .calendar {
   width: 490px;
-  position: relative;
+  position: sticky;
+  top: 2rem;
   padding: 0;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 800;
-  color: #1a1a1a;
-  border-radius: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: auto auto;
   overflow: visible;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(4px) saturate(180%);
-  -webkit-backdrop-filter: blur(4px) saturate(180%);
   padding-bottom: 2rem;
+  /* Light variant (default) */
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Dark variant */
+.light {
+  border: none;
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Glass effect */
@@ -23,29 +30,19 @@
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 24px;
-  backdrop-filter: blur(4px) saturate(180%);
-  -webkit-backdrop-filter: blur(4px) saturate(180%);
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  background: transparent;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: -1;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
-/* Column separators */
-.calendar::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: linear-gradient(to right,
-    rgba(255, 255, 255, 0.1) 1px,
-    transparent 1px
-  );
-  background-size: calc(100% / 7) 100%;
-  background-position: -1px 0;
-  background-repeat: repeat-x;
-  pointer-events: none;
-  margin: 0 2rem;
+.light::before {
+  display: none;
 }
+
+
 
 .monthContainer {
   grid-row: 1;
@@ -63,8 +60,9 @@
   font-size: 240px;
   line-height: 1;
   text-transform: lowercase;
-  color: rgba(0, 0, 0, 0.9);
-  font-weight: 900;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 800;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   position: relative;
   height: 100%;
   display: flex;
@@ -72,6 +70,10 @@
   overflow: hidden;
   padding: 0;
   justify-content: flex-start;
+}
+
+.light .letterCell {
+  color: rgba(0, 0, 0, 0.9);
 }
 
 .letterCell > span {
@@ -109,8 +111,12 @@
 }
 
 .gridLine {
-  border-right: 1px solid rgba(0, 0, 0, 0.15);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
   height: 100%;
+}
+
+.light .gridLine {
+  display: none;
 }
 
 .dayColumn {
@@ -125,6 +131,11 @@
   line-height: 1;
   margin-bottom: 1.5rem;
   font-weight: 800;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.light .dayHeader {
   color: rgba(0, 0, 0, 0.4);
   letter-spacing: 0.05em;
   text-align: left;
@@ -146,6 +157,11 @@
   display: flex;
   align-items: center;
   font-weight: 800;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.light .dateCell {
   color: rgba(0, 0, 0, 0.6);
   text-align: left;
 }

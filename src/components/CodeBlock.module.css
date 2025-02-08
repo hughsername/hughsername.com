@@ -1,0 +1,95 @@
+.container {
+  background: rgba(16, 20, 48, 0.95);
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 2rem 0;
+  box-shadow: 
+    0 0 0 1px rgba(82, 138, 255, 0.1),
+    0 8px 24px -8px rgba(0, 0, 0, 0.5),
+    0 0 48px -4px rgba(82, 138, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(24, 28, 64, 0.95);
+  border-bottom: 1px solid rgba(82, 138, 255, 0.15);
+}
+
+.language {
+  color: rgba(82, 138, 255, 0.8);
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: lowercase;
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(82, 138, 255, 0.3);
+}
+
+.dot:nth-child(1) {
+  background: rgba(82, 138, 255, 0.4);
+}
+
+.dot:nth-child(2) {
+  background: rgba(82, 138, 255, 0.3);
+}
+
+.dot:nth-child(3) {
+  background: rgba(82, 138, 255, 0.2);
+}
+
+.pre {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.code {
+  color: rgba(255, 255, 255, 0.9);
+  display: block;
+}
+
+/* Syntax highlighting classes */
+.code :global(.keyword) {
+  color: rgb(82, 138, 255);
+}
+
+.code :global(.string) {
+  color: rgb(130, 170, 255);
+}
+
+.code :global(.comment) {
+  color: rgba(82, 138, 255, 0.5);
+}
+
+.code :global(.function) {
+  color: rgb(150, 190, 255);
+}
+
+.code :global(.number) {
+  color: rgb(100, 160, 255);
+}
+
+/* Add subtle glow effect on hover */
+.container:hover {
+  box-shadow: 
+    0 0 0 1px rgba(82, 138, 255, 0.2),
+    0 8px 24px -8px rgba(0, 0, 0, 0.5),
+    0 0 48px -4px rgba(82, 138, 255, 0.3);
+}

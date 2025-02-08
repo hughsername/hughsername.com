@@ -1,0 +1,40 @@
+.blogPost {
+  max-width: 680px;
+  margin: 4rem auto;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  line-height: 1.7;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.metadata {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.5);
+  margin-bottom: 2rem;
+}
+
+.content {
+  font-size: 1.1rem;
+}
+
+.content p {
+  margin-bottom: 1.5rem;
+}
+
+.content h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 3rem 0 1.5rem;
+}
+
+.content h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 2rem 0 1rem;
+}

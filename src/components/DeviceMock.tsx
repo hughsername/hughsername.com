@@ -4,6 +4,7 @@ import styles from './DeviceMock.module.css';
 interface Props {
   class?: string;
   imageSrc: string;
+  children?: any;
 }
 
 const DeviceMock: Component<Props> = (props) => {
@@ -17,6 +18,9 @@ const DeviceMock: Component<Props> = (props) => {
             class={styles.image}
           />
           <div class={styles.gradient} />
+          <div class={styles.content}>
+            {props.children}
+          </div>
         </div>
       </div>
     </div>

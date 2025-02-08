@@ -207,6 +207,8 @@ export default function GraphPaper(props: Props) {
     lastUpdateTime = currentTime;
 
     const rect = containerRef.getBoundingClientRect();
+    
+    // Use clientX/Y directly with getBoundingClientRect since both are viewport-relative
     const x = (clientX - rect.left) / rect.width;
     const y = 1.0 - (clientY - rect.top) / rect.height;
 
@@ -257,8 +259,18 @@ export default function GraphPaper(props: Props) {
     uniforms.u_prevStrengths.value = strengths;
   };
 
+  let lastKnownClientX = 0;
+  let lastKnownClientY = 0;
+
   const handleMouseMove = (event: MouseEvent) => {
+    lastKnownClientX = event.clientX;
+    lastKnownClientY = event.clientY;
     updateMousePosition(event.clientX, event.clientY);
+  };
+
+  const handleScroll = () => {
+    // During scroll, update position using last known mouse coordinates
+    updateMousePosition(lastKnownClientX, lastKnownClientY);
   };
 
   const handleResize = () => {
@@ -387,6 +399,7 @@ export default function GraphPaper(props: Props) {
 
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll);
 
     animate(0);
   });
@@ -396,6 +409,7 @@ export default function GraphPaper(props: Props) {
     
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('resize', handleResize);
+    window.removeEventListener('scroll', handleScroll);
     
     cancelAnimationFrame(frameId);
     renderer.dispose();

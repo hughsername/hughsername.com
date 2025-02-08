@@ -3,6 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import DeviceMock from '../components/DeviceMock';
 import GraphPaper from '../components/GraphPaper';
 import CrouwelCalendar from '../components/CrouwelCalendar';
+import BlogPost from '../components/BlogPost';
+import CodeBlock from '../components/CodeBlock';
 import { getImage } from 'astro:assets';
 import mountainsHero from '../assets/mountains-hero.jpg';
 
@@ -16,13 +18,47 @@ const optimizedImage = await getImage({
 ---
 
 <BaseLayout title="Device Mock Test">
-  <div style="position: relative; width: 100%; min-height: 150vh; display: flex; flex-direction: column; align-items: center;">
-    <GraphPaper client:load />
-    <div style="position: relative; margin-top: 10vh;">
-      <DeviceMock client:load imageSrc={optimizedImage.src} />
-    </div>
-    <div style="position: relative; margin-top: 10vh; z-index: 10;">
-      <CrouwelCalendar client:load />
+  <div style="position: relative; width: 100%; min-height: 150vh;">
+    <div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+      <div style="margin-bottom: 4rem;">
+        <DeviceMock client:load imageSrc={optimizedImage.src}>
+          <CrouwelCalendar client:load variant="dark" />
+        </DeviceMock>
+      </div>
+      <div style="display: grid; grid-template-columns: 490px 1fr; gap: 4rem;">
+        <div style="position: relative; margin-left: -0.7rem;">
+          <CrouwelCalendar client:load variant="light" />
+        </div>
+        <div style="position: relative;">
+          <BlogPost client:load>
+            <CodeBlock
+              client:load
+              language="javascript"
+              code={`// Calendar animation configuration
+const config = {
+  monthTransition: {
+    duration: 800,
+    easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    stagger: 50
+  },
+  letterSpacing: {
+    default: '0.02em',
+    expanded: '0.12em'
+  },
+  colors: {
+    primary: 'rgb(82, 138, 255)',
+    secondary: 'rgba(82, 138, 255, 0.8)',
+    background: 'rgba(16, 20, 48, 0.95)'
+  },
+  grid: {
+    size: 35,
+    lineWidth: 1,
+    opacity: 0.15
+  }
+}`} />
+          </BlogPost>
+        </div>
+      </div>
     </div>
   </div>
 </BaseLayout>
