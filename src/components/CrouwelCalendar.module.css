@@ -1,14 +1,14 @@
 .calendar {
-  width: 490px;
-  position: sticky;
-  top: 2rem;
+  /* 7 columns * 72px = 504px (2 grid units per column) */
+  width: 504px;
+  position: relative;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: auto auto;
   overflow: visible;
   box-sizing: border-box;
-  padding-bottom: 2rem;
+  padding-bottom: 18px; /* 0.5 grid units */
   /* Light variant (default) */
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -48,20 +48,24 @@
   grid-row: 1;
   grid-column: 1 / -1;
   position: relative;
-  margin: 3rem 0 2rem;
+  /* 0.5 rows padding bottom (18px) */
+  margin: 0 0 18px;
   display: grid;
   grid-template-columns: subgrid;
-  height: 320px;
+  /* 9.5 rows * 36px = 342px */
+  height: 306px;
   padding: 0;
-  align-items: center;
+  align-items: flex-start;
+  padding-top: 36px; /* 1 grid unit from top */
 }
 
 .letterCell {
-  font-size: 240px;
+  /* Scale up font size proportionally from 32px to 36px grid */
+  font-size: 216px;
   line-height: 1;
   text-transform: lowercase;
   color: rgba(255, 255, 255, 0.9);
-  font-weight: 800;
+  font-weight: 700;
   font-family: 'Plus Jakarta Sans', sans-serif;
   position: relative;
   height: 100%;
@@ -80,6 +84,7 @@
   position: absolute;
   white-space: nowrap;
   left: 0;
+  top: -36px; /* Pull up by 1 grid unit */
   transform-origin: left center;
 }
 
@@ -91,13 +96,14 @@
 .daysContainer {
   grid-row: 2;
   grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: subgrid;
+  display: flex;
+  flex-direction: column;
   gap: 0;
   position: relative;
   padding: 0;
-  min-height: 200px;
-  margin-top: -0.5rem;
+  /* 6 rows * 36px = 216px */
+  min-height: 216px;
+  margin-top: 0;
 }
 
 /* Grid overlay */
@@ -107,7 +113,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   pointer-events: none;
-  z-index: 2;
+  z-index: 1;
 }
 
 .gridLine {
@@ -129,39 +135,69 @@
 .dayHeader {
   font-size: 13px;
   line-height: 1;
-  margin-bottom: 1.5rem;
+  /* 0.25 grid units (9px) */
+  margin-bottom: 9px;
+  height: 1.5875em;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 0;
   font-weight: 800;
   font-family: 'Plus Jakarta Sans', sans-serif;
   color: rgba(255, 255, 255, 0.6);
+  width: 100%;
 }
 
 .light .dayHeader {
   color: rgba(0, 0, 0, 0.4);
   letter-spacing: 0.05em;
   text-align: left;
-  padding: 0;
 }
 
-.dayColumn {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0;
-  margin-left: 4px;
+.dayHeaders {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 18px;
+}
+
+.dayHeaders > div {
+  padding-left: 4px;
+  box-sizing: border-box;
+}
+
+.dayGrid {
+  display: grid;
+  grid-auto-rows: 36px;
+  gap: 9px;
+}
+
+.weekRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.weekRow > div {
+  padding-left: 4px;
+  box-sizing: border-box;
 }
 
 .dateCell {
   font-size: 15px;
-  line-height: 1.45;
-  height: 1.45em;
+  line-height: 1.5875;
+  height: 1.5875em;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   font-weight: 800;
   font-family: 'Plus Jakarta Sans', sans-serif;
   color: rgba(255, 255, 255, 0.8);
+  position: relative;
+  padding-left: 0;
+  z-index: 1;
+
 }
 
 .light .dateCell {
   color: rgba(0, 0, 0, 0.6);
-  text-align: left;
 }
+

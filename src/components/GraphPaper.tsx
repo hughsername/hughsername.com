@@ -380,7 +380,7 @@ export default function GraphPaper(props: Props) {
       u_mouse: { value: new THREE.Vector2(0.5, 0.5) },
       u_prevMouse: { value: Array(maxTrailLength).fill(null).map(() => new THREE.Vector2(0.5, 0.5)) },
       u_prevStrengths: { value: Array(maxTrailLength).fill(0.0) },
-      u_gridSize: { value: 35 * pixelRatio },
+      u_gridSize: { value: 36 * pixelRatio },
       u_lineWidth: { value: 0.02 },
       u_isDesktop: { value: isDesktop() ? 1.0 : 0.0 },
       u_isBlue: { value: props.variant === 'blue' ? 1.0 : 0.0 }
@@ -417,7 +417,7 @@ export default function GraphPaper(props: Props) {
 
   return (
     <div 
-      class={styles.container} 
+      class={`${styles.container} graphPaper`} 
       ref={(el) => containerRef = el}
     >
       <canvas ref={(el) => canvas = el} />

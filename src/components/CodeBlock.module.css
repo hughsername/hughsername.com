@@ -1,17 +1,98 @@
+/* Define border angle property */
+@property --border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0turn;
+}
+
+@keyframes borderRotate {
+  to {
+    --border-angle: 1turn;
+  }
+}
+
 .container {
-  background: rgba(16, 20, 48, 0.95);
   border-radius: 12px;
-  overflow: hidden;
   font-family: 'JetBrains Mono', monospace;
   font-size: 14px;
   line-height: 1.5;
   margin: 2rem 0;
-  box-shadow: 
-    0 0 0 1px rgba(82, 138, 255, 0.1),
-    0 8px 24px -8px rgba(0, 0, 0, 0.5),
-    0 0 48px -4px rgba(82, 138, 255, 0.2);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  position: relative;
+  will-change: opacity;
+}
+
+/* Glass effect container */
+.container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: -1;
+}
+
+/* Gradient border effect */
+.container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--border-angle),
+    rgba(82, 138, 255, 0.05) 0%, 
+    rgba(82, 138, 255, 0.05) 15%, 
+    rgba(82, 138, 255, 0.6) 17.5%, 
+    rgba(140, 180, 255, 0.8) 20%,
+    rgba(82, 138, 255, 0.6) 22.5%, 
+    rgba(82, 138, 255, 0.05) 25%, 
+    rgba(82, 138, 255, 0.05) 65%, 
+    rgba(82, 138, 255, 0.6) 67.5%, 
+    rgba(140, 180, 255, 0.8) 70%,
+    rgba(82, 138, 255, 0.6) 72.5%, 
+    rgba(82, 138, 255, 0.05) 75%
+  );
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+  will-change: transform;
+}
+
+.container:hover::before {
+  opacity: 1;
+  animation: borderRotate 3s linear infinite;
+}
+
+/* Dark variant */
+.dark {
+  background: rgba(16, 20, 48, 0.85);
+  box-shadow: 0 0 0 1px rgba(82, 138, 255, 0.1);
+}
+
+.dark :global(pre[class*="shiki"]) {
+  background: transparent !important;
+  user-select: text;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Light variant */
+.light {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.light :global(pre[class*="shiki"]) {
+  background: transparent !important;
+  user-select: text;
+  border-radius: 0 0 12px 12px;
 }
 
 .header {
@@ -19,15 +100,66 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: rgba(24, 28, 64, 0.95);
+  user-select: none;
+  border-radius: 12px 12px 0 0;
+  background: inherit;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.copyButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  color: rgb(82, 138, 255);
+}
+
+.copyButton:hover {
+  opacity: 1;
+}
+
+.copyText {
+  font-size: 12px;
+  color: rgb(82, 138, 255);
+  font-weight: 500;
+}
+
+.dark .header {
+  background: rgba(24, 28, 64, 0.9);
   border-bottom: 1px solid rgba(82, 138, 255, 0.15);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.light .header {
+  background: rgba(255, 255, 255, 0.25);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .language {
-  color: rgba(82, 138, 255, 0.8);
   font-size: 13px;
   font-weight: 500;
   text-transform: lowercase;
+}
+
+.dark .language {
+  color: rgba(82, 138, 255, 0.8);
+}
+
+.light .language {
+  color: rgba(82, 138, 255, 0.9);
 }
 
 .dots {
@@ -39,19 +171,38 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
+}
+
+.dark .dot {
   background: rgba(82, 138, 255, 0.3);
 }
 
-.dot:nth-child(1) {
+.dark .dot:nth-child(1) {
   background: rgba(82, 138, 255, 0.4);
 }
 
-.dot:nth-child(2) {
+.dark .dot:nth-child(2) {
   background: rgba(82, 138, 255, 0.3);
 }
 
-.dot:nth-child(3) {
+.dark .dot:nth-child(3) {
   background: rgba(82, 138, 255, 0.2);
+}
+
+.light .dot {
+  background: rgba(82, 138, 255, 0.4);
+}
+
+.light .dot:nth-child(1) {
+  background: rgba(82, 138, 255, 0.5);
+}
+
+.light .dot:nth-child(2) {
+  background: rgba(82, 138, 255, 0.4);
+}
+
+.light .dot:nth-child(3) {
+  background: rgba(82, 138, 255, 0.3);
 }
 
 .pre {
@@ -61,35 +212,67 @@
 }
 
 .code {
-  color: rgba(255, 255, 255, 0.9);
   display: block;
 }
 
-/* Syntax highlighting classes */
-.code :global(.keyword) {
+.dark .code {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.light .code {
+  color: rgba(16, 20, 48, 0.9);
+}
+
+/* Syntax highlighting classes - Dark */
+.dark .code :global(.astro-code) {
+  background: transparent !important;
+}
+
+.dark .code :global(.keyword),
+.dark .code :global(.tag) {
   color: rgb(82, 138, 255);
 }
 
-.code :global(.string) {
+.dark .code :global(.string) {
   color: rgb(130, 170, 255);
 }
 
-.code :global(.comment) {
+.dark .code :global(.comment) {
   color: rgba(82, 138, 255, 0.5);
 }
 
-.code :global(.function) {
+.dark .code :global(.function) {
   color: rgb(150, 190, 255);
 }
 
-.code :global(.number) {
+.dark .code :global(.number) {
   color: rgb(100, 160, 255);
 }
 
-/* Add subtle glow effect on hover */
-.container:hover {
-  box-shadow: 
-    0 0 0 1px rgba(82, 138, 255, 0.2),
-    0 8px 24px -8px rgba(0, 0, 0, 0.5),
-    0 0 48px -4px rgba(82, 138, 255, 0.3);
+/* Syntax highlighting classes - Light */
+.light .code :global(.astro-code) {
+  background: transparent !important;
 }
+
+.light .code :global(.keyword),
+.light .code :global(.tag) {
+  color: rgb(41, 69, 128);
+}
+
+.light .code :global(.string) {
+  color: rgb(65, 85, 128);
+}
+
+.light .code :global(.comment) {
+  color: rgba(41, 69, 128, 0.6);
+}
+
+.light .code :global(.function) {
+  color: rgb(75, 95, 138);
+}
+
+.light .code :global(.number) {
+  color: rgb(50, 80, 128);
+}
+
+

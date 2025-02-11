@@ -1,5 +1,5 @@
-import { createSignal } from 'solid-js';
 import styles from './CrouwelCalendar.module.css';
+import { HighlightCircle } from './HighlightCircle';
 
 const MONTH_LAYOUTS = {
   january: [
@@ -96,23 +96,91 @@ const MONTH_LAYOUTS = {
 
 interface Props {
   variant?: 'light' | 'dark';
+  highlightDate?: Date;
 }
 
 export default function CrouwelCalendar(props: Props) {
-  const monthLayout = MONTH_LAYOUTS.may;
+  // Test highlighting the 10th
+  const testDate = new Date();
+  //testDate.setDate(10);
+  const date = props.highlightDate || testDate;
+  const monthIndex = date.getMonth();
+  const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'] as const;
+  const monthLayout = MONTH_LAYOUTS[monthNames[monthIndex]];
 
-  const days = [
-    { day: "M", dates: ["1", "8", "15", "22", "29"] },
-    { day: "T", dates: ["2", "9", "16", "23", "30"] },
-    { day: "W", dates: ["3", "10", "17", "24", "31"] },
-    { day: "T", dates: ["4", "11", "18", "25"] },
-    { day: "F", dates: ["5", "12", "19", "26"] },
-    { day: "S", dates: ["6", "13", "20", "27"] },
-    { day: "S", dates: ["7", "14", "21", "28"] }
-  ];
+  // Calculate calendar data
+  const year = date.getFullYear();
+  const firstDay = new Date(year, monthIndex, 1).getDay();
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const startOffset = firstDay === 0 ? 6 : firstDay - 1; // Adjust for Monday start
+
+  // Create a fixed 6x7 grid (42 cells)
+  const grid: (number | null)[] = Array(42).fill(null);
+  
+  // Calculate starting position in the grid
+  let currentPos = startOffset;
+  
+  // Fill in the actual dates
+  for (let date = 1; date <= daysInMonth; date++) {
+    grid[currentPos] = date;
+    currentPos++;
+  }
+
+  // Create the display grid and filter out empty rows
+  const displayGrid: (number | null)[][] = [];
+  for (let row = 0; row < 6; row++) {
+    const weekRow: (number | null)[] = [];
+    for (let col = 0; col < 7; col++) {
+      weekRow.push(grid[row * 7 + col]);
+    }
+    // Only add the row if it contains at least one non-null value
+    if (weekRow.some(cell => cell !== null)) {
+      displayGrid.push(weekRow);
+    }
+  }
+
+  // Get the day we want to highlight
+  const highlightDay = props.highlightDate ? props.highlightDate.getDate() : date.getDate();
+  console.log('Looking for day:', highlightDay, 'in grid:', grid);
+
+  // Calculate highlight position
+  let highlightPosition = { row: 0, col: 0 };
+  if (highlightDay) {
+    const index = grid.findIndex(date => date === highlightDay);
+    console.log('Grid:', grid);
+    console.log('Looking for day:', highlightDay);
+    console.log('Found at index:', index);
+    if (index !== -1) {
+      highlightPosition = {
+        row: Math.floor(index / 7),
+        col: index % 7
+      };
+      console.log('Position:', highlightPosition);
+    }
+  }
+  let leftOffset = highlightDay < 10 ? 0 : highlightDay < 20 ? 3 : 4;
 
   return (
     <div class={`${styles.calendar} ${props.variant === 'light' ? styles.light : ''}`}>
+      {highlightPosition && (
+        <div 
+          style={{ 
+            position: 'absolute',
+            // Each column is 72px (504px / 7)
+            // Each column is 72px (504px / 7)
+            left: `${highlightPosition.col * 72 + leftOffset + 9}px`,
+            // Vertical positioning breakdown:
+            // - Month container: 306px
+            // - Day headers: 45px
+            // - Row height per grid: 36px
+            // - Additional offset: 72px (2 grid units) to align with date
+            top: `${428 + ((highlightPosition.row-1) * 45)}px`,
+            'z-index': 10
+          }}
+        >
+          <HighlightCircle />
+        </div>
+      )}
       <div class={styles.gridOverlay}>
         {[...Array(6)].map((_, i) => (
           <div class={styles.gridLine} />
@@ -136,14 +204,20 @@ export default function CrouwelCalendar(props: Props) {
         ))}
       </div>
       <div class={styles.daysContainer}>
-        {days.map((column) => (
-          <div class={styles.dayColumn}>
-            <div class={styles.dayHeader}>{column.day}</div>
-            {column.dates.map((date) => (
-              <div class={styles.dateCell}>{date}</div>
-            ))}
-          </div>
-        ))}
+        <div class={styles.dayHeaders}>
+          {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map(day => (
+            <div class={styles.dayHeader}>{day}</div>
+          ))}
+        </div>
+        <div class={styles.dayGrid}>
+          {displayGrid.map((week, weekIndex) => (
+            <div class={styles.weekRow}>
+              {week.map((date, dayIndex) => (
+                <div class={styles.dateCell}>{date}</div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

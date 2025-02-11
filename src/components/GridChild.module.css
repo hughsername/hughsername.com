@@ -1,0 +1,8 @@
+.gridChild {
+  position: relative;
+  /* Force elements to align to the 32px grid by rounding position to nearest 32px */
+  transform: translate(
+    calc(round(var(--x, 0) / 32) * 32px),
+    calc(round(var(--y, 0) / 32) * 32px)
+  );
+}

@@ -1,0 +1,20 @@
+.gridItem {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  /* Snap to 32px grid */
+  transform: translate(
+    calc(var(--x-offset, 0) * 32px),
+    calc(var(--y-offset, 0) * 32px)
+  );
+}
+
+/* Container for grid items */
+.gridContainer {
+  position: relative;
+  display: grid;
+  gap: 32px;
+  padding: 32px;
+  grid-auto-flow: dense;
+  grid-template-columns: repeat(auto-fill, 32px);
+}

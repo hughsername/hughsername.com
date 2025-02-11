@@ -1,0 +1,161 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getHighlighter } from '../utils/shikiHighlighter';
+import DeviceMock from '../components/DeviceMock';
+import CrouwelCalendar from '../components/CrouwelCalendar';
+import BlogPost from '../components/BlogPost';
+import CodeBlock from '../components/CodeBlock';
+import GridItem from '../components/GridItem';
+import { getImage } from 'astro:assets';
+import mountainsHero from '../assets/mountains-hero.jpg';
+
+const optimizedImage = await getImage({
+  src: mountainsHero,
+  width: 1000,
+  height: 700,
+  format: 'webp',
+  quality: 85
+});
+
+// Pre-render the syntax highlighted code
+const highlighter = await getHighlighter();
+
+// Dark theme code
+const darkCode = highlighter.codeToHtml(`// Calendar animation configuration
+const config = {
+  monthTransition: {
+    duration: 800,
+    easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    stagger: 50
+  },
+  letterSpacing: {
+    default: '0.02em',
+    expanded: '0.12em'
+  },
+  colors: {
+    primary: 'rgb(82, 138, 255)',
+    secondary: 'rgba(82, 138, 255, 0.8)',
+    background: 'rgba(16, 20, 48, 0.95)'
+  },
+  grid: {
+    size: 35,
+    lineWidth: 1,
+    opacity: 0.15
+  }
+}`, {
+  lang: 'javascript',
+  theme: 'github-dark'
+});
+
+// Light theme code
+const lightCode = highlighter.codeToHtml(`// Example of light variant usage
+const lightTheme = {
+  colors: {
+    primary: 'rgb(41, 69, 128)',
+    secondary: 'rgba(41, 69, 128, 0.8)',
+    background: 'rgba(255, 255, 255, 0.7)'
+  },
+  effects: {
+    blur: '8px',
+    glow: '0 0 48px -4px rgba(82, 138, 255, 0.1)'
+  }
+}`, {
+  lang: 'javascript',
+  theme: 'github-light'
+});
+---
+
+<BaseLayout title="Grid Alignment Test">
+  <div class="page-container">
+    <div class="grid-container">
+      <div class="content">
+      <GridItem client:load rowHeight={22} minSpan={16} class="deviceContainer">
+        <DeviceMock client:load imageSrc={optimizedImage.src}>
+          <CrouwelCalendar client:load variant="dark" />
+        </DeviceMock>
+      </GridItem>
+      
+      <GridItem client:load rowHeight={20} minSpan={16}>
+        <CrouwelCalendar client:load variant="light" />
+      </GridItem>
+      
+      <div style="grid-column: 1 / -1; height: 32px;"></div>
+      
+      <GridItem client:load rowHeight={30}>
+        <BlogPost client:load>
+          <CodeBlock
+            client:load
+            language="javascript"
+            variant="dark"
+            html={darkCode} />
+          
+          <CodeBlock
+            client:load
+            language="javascript"
+            variant="light"
+            html={lightCode} />
+        </BlogPost>
+      </GridItem>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .grid-container {
+    --grid: 36px;
+    --margin-cols: 4; /* 4 grid units from left */
+    --medium-cols: 24; /* Default to 24 columns (864px) */
+    --margin-width: calc(var(--margin-cols) * var(--grid));
+    container-type: inline-size;
+    
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: grid;
+    /* Start with medium columns */
+    grid-template-columns:
+      [margin-start] repeat(var(--margin-cols), var(--grid))
+      [content-start] repeat(var(--medium-cols), var(--grid))
+      [content-end];
+  }
+
+  /* When viewport is smaller than margin + content, add horizontal scroll */
+  @media (max-width: calc(var(--margin-width) + (var(--medium-cols) * var(--grid)))) {
+    .grid-container {
+      overflow-x: auto;
+      min-width: calc(var(--margin-width) + (var(--medium-cols) * var(--grid)));
+    }
+  }
+
+  .content {
+    position: relative;
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-auto-rows: var(--grid);
+    gap: 0;
+    z-index: 1;
+    padding: 0;
+    grid-column: content-start / content-end;
+    max-width: 100%;
+  }
+
+  /* Ensure all direct children of content span the full width but don't overflow */
+  .content > * {
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  .content > * {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .deviceContainer {
+    --device-scale: 0.5;
+    width: 1000px;
+  }
+</style>

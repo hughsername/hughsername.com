@@ -1,0 +1,14 @@
+.iconWrapper {
+  --angle: 0deg;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconStroke {
+  stroke: url(#paint0_linear_2229_1406);
+  transform: rotate(var(--angle));
+  transform-origin: center;
+  will-change: transform;
+}

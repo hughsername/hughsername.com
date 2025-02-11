@@ -1,6 +1,5 @@
 .blogPost {
-  max-width: 680px;
-  margin: 4rem auto;
+  width: 100%;
   font-family: 'Plus Jakarta Sans', sans-serif;
   line-height: 1.7;
   color: rgba(0, 0, 0, 0.8);
